@@ -110,6 +110,11 @@
             font-weight: bold;
         }
 
+        /* NEW: Context highlight for loop */
+        .code-line-context {
+            background-color: #374151; /* gray-800 */
+        }
+
         /* Style for formula logs */
         .formula-log {
             font-family: 'Courier New', Courier, monospace;
@@ -261,35 +266,35 @@
                     <!-- Visual Formula (Redesigned) -->
                     <div id="visual-formula-container" class="bg-white rounded-xl shadow-xl p-6 md:p-8 hidden">
                         <h2 class="text-2xl font-semibold mb-4 text-center">Live Formula Breakdown</h2>
-                        <!-- **** THIS IS THE FIXED BLOCK **** -->
+                        <!-- **** THIS BLOCK IS UPDATED **** -->
                         <div class="formula-box">
-                            <div class="text-center text-gray-400 mb-4">pos = low + (Proportion * Index Range)</div>
-                            
-                            <div class="formula-step">
-                                <span class="formula-label">Value's Position</span>
-                                <span class="formula-calc">(target - arr[low]) = <span id="vf-target" class="var-val">?</span> - <span id="vf-arr-low" class="var-val">?</span> = <span id="vf-val-pos" class="var-val">?</span></span>
-                            </div>
-                            
-                            <div class="formula-step">
-                                <span class="formula-label">Value Range</span>
-                                <span class="formula-calc">(arr[high] - arr[low]) = <span id="vf-arr-high" class="var-val">?</span> - <span id="vf-arr-low-2" class="var-val">?</span> = <span id="vf-val-range" class="var-val">?</span></span>
-                            </div>
-
-                            <div class="formula-step">
-                                <span class="formula-label">Proportion</span>
-                                <span class="formula-calc">(Position / Range) = <span id="vf-val-pos-2" class="var-val">?</span> / <span id="vf-val-range-2" class="var-val">?</span> = <span id="vf-proportion" class="var-val">?</span></span>
-                            </div>
+                            <div class="text-center text-gray-400 mb-4">probe = low + (Index Range * Value's Position) / Value Range</div>
                             
                             <div class="formula-step">
                                 <span class="formula-label">Index Range</span>
                                 <span class="formula-calc">(high - low) = <span id="vf-high" class="var-val">?</span> - <span id="vf-low" class="var-val">?</span> = <span id="vf-index-range" class="var-val">?</span></span>
                             </div>
                             
+                            <div class="formula-step">
+                                <span class="formula-label">Value's Position</span>
+                                <span class="formula-calc">(value - array[low]) = <span id="vf-target" class="var-val">?</span> - <span id="vf-arr-low" class="var-val">?</span> = <span id="vf-val-pos" class="var-val">?</span></span>
+                            </div>
+
+                            <div class="formula-step">
+                                <span class="formula-label">Value Range</span>
+                                <span class="formula-calc">(array[high] - array[low]) = <span id="vf-arr-high" class="var-val">?</span> - <span id="vf-arr-low-2" class="var-val">?</span> = <span id="vf-val-range" class="var-val">?</span></span>
+                            </div>
+                            
+                            <div class="formula-step">
+                                <span class="formula-label">Calculation</span>
+                                <span class="formula-calc">(<span id="vf-index-range-2" class="var-val">?</span> * <span id="vf-val-pos-2" class="var-val">?</span>) / <span id="vf-val-range-2" class="var-val">?</span> = <span id="vf-calc-res" class="var-val">?</span></span>
+                            </div>
+                            
                             <div class="final-result">
-                                pos = <span id="vf-low-2" class="var-val">?</span> + (<span id="vf-proportion-2" class="var-val">?</span> * <span id="vf-index-range-2" class="var-val">?</span>) = <span id="vf-result" class="var-val">?</span>
+                                probe = <span id="vf-low-2" class="var-val">?</span> + <span id="vf-calc-res-2" class="var-val">?</span> = <span id="vf-result" class="var-val">?</span>
                             </div>
                         </div>
-                        <!-- **** END OF FIXED BLOCK **** -->
+                        <!-- **** END OF UPDATED BLOCK **** -->
                     </div>
 
                     <!-- NEW: Code Container -->
@@ -355,8 +360,12 @@
         const visualFormulaContainer = document.getElementById('visual-formula-container');
         const codeContainer = document.getElementById('code-container'); // NEW
 
-        // Visual Formula DOM Elements
+        // Visual Formula DOM Elements (UPDATED)
         const vf = {
+            high: document.getElementById('vf-high'),
+            low: document.getElementById('vf-low'),
+            indexRange: document.getElementById('vf-index-range'),
+            
             target: document.getElementById('vf-target'),
             arrLow: document.getElementById('vf-arr-low'),
             valPos: document.getElementById('vf-val-pos'),
@@ -365,27 +374,21 @@
             arrLow2: document.getElementById('vf-arr-low-2'),
             valRange: document.getElementById('vf-val-range'),
 
+            indexRange2: document.getElementById('vf-index-range-2'),
             valPos2: document.getElementById('vf-val-pos-2'),
             valRange2: document.getElementById('vf-val-range-2'),
-            proportion: document.getElementById('vf-proportion'),
-            
-            high: document.getElementById('vf-high'),
-            low: document.getElementById('vf-low'),
-            indexRange: document.getElementById('vf-index-range'),
-            
+            calcRes: document.getElementById('vf-calc-res'),
+
             low2: document.getElementById('vf-low-2'),
-            proportion2: document.getElementById('vf-proportion-2'),
-            indexRange2: document.getElementById('vf-index-range-2'),
+            calcRes2: document.getElementById('vf-calc-res-2'),
             result: document.getElementById('vf-result')
         };
-        // This was the source of the error. This line was trying to read properties
-        // of 'null' because the HTML was missing.
         const allVfSpans = Object.values(vf);
 
-        // Global state object for manual stepping
+        // Global state object for manual stepping (UPDATED)
         let vizState = {
             isRunning: false,
-            step: 'probe', // 'probe' or 'compare'
+            step: 'init_high', // 'init_high' -> 'init_low', 'check_while', 'check_low_high_equal', 'calculate_probe', 'check_and_update_probe', 'finish_found', 'finish_fail', 'finish_fail_break'
             sortedArray: [],
             target: 0,
             low: 0,
@@ -395,6 +398,7 @@
         };
 
         let currentHighlight = null; // NEW: For code highlighting
+        let currentContextHighlight = null; // NEW: For loop context
 
         // Helper: Flash effect for updated values
         function flashUpdate(elements) {
@@ -410,30 +414,41 @@
             });
         }
 
-        // Helper: Update Visual Formula
+        // Helper: Update Visual Formula (UPDATED)
         function updateVisualFormula(lowVal, highVal, targetVal, arrLowVal, arrHighVal) {
-            // This function will no longer throw an error
+            const indexRange = (highVal - lowVal);
             const valPos = (targetVal - arrLowVal);
             const valRange = (arrHighVal - arrLowVal);
-            const proportion = (valRange === 0) ? 0 : (valPos / valRange);
-            const indexRange = (highVal - lowVal);
-            const pos = lowVal + Math.floor(proportion * indexRange);
-            vf.target.textContent = targetVal;
-            vf.arrLow.textContent = arrLowVal;
-            vf.valPos.textContent = valPos;
-            vf.arrHigh.textContent = arrHighVal;
-            vf.arrLow2.textContent = arrLowVal;
-            vf.valRange.textContent = valRange;
-            vf.valPos2.textContent = valPos;
-            vf.valRange2.textContent = valRange;
-            vf.proportion.textContent = proportion.toFixed(3);
+            
+            // Handle division by zero case
+            let calcRes = 0;
+            if (valRange !== 0) {
+                calcRes = Math.floor((indexRange * valPos) / valRange);
+            }
+
+            const pos = lowVal + calcRes;
+
             vf.high.textContent = highVal;
             vf.low.textContent = lowVal;
             vf.indexRange.textContent = indexRange;
-            vf.low2.textContent = lowVal;
-            vf.proportion2.textContent = proportion.toFixed(3);
+
+            vf.target.textContent = targetVal;
+            vf.arrLow.textContent = arrLowVal;
+            vf.valPos.textContent = valPos;
+
+            vf.arrHigh.textContent = arrHighVal;
+            vf.arrLow2.textContent = arrLowVal;
+            vf.valRange.textContent = valRange;
+
             vf.indexRange2.textContent = indexRange;
+            vf.valPos2.textContent = valPos;
+            vf.valRange2.textContent = valRange;
+            vf.calcRes.textContent = calcRes;
+
+            vf.low2.textContent = lowVal;
+            vf.calcRes2.textContent = calcRes;
             vf.result.textContent = pos;
+
             flashUpdate(allVfSpans);
             visualFormulaContainer.classList.remove('hidden');
         }
@@ -460,6 +475,21 @@
                 }
             } else {
                 currentHighlight = null;
+            }
+        }
+
+        // NEW: Helper: Highlight a line of code context (e.g., the while loop)
+        function setContextHighlight(lineId, active) {
+            if (currentContextHighlight) {
+                currentContextHighlight.classList.remove('code-line-context');
+                currentContextHighlight = null;
+            }
+            if (active && lineId) {
+                const line = document.getElementById(lineId);
+                if (line) {
+                    line.classList.add('code-line-context');
+                    currentContextHighlight = line;
+                }
             }
         }
 
@@ -529,7 +559,7 @@
             }
         }
 
-        // Main setup function (formerly startVisualization)
+        // Main setup function (formerly startVisualization) (UPDATED)
         function initializeSearch() {
             // 1. Get and parse inputs
             const rawArray = arrayInput.value.split(',')
@@ -564,7 +594,7 @@
             // 3. Initialize search state
             vizState = {
                 isRunning: true,
-                step: 'probe',
+                step: 'init_high', // Start at new init step
                 sortedArray: sorted,
                 target: target,
                 low: 0,
@@ -576,128 +606,236 @@
             // 4. Set UI to active
             setButtonState('active');
             codeContainer.classList.remove('hidden'); // NEW
-            highlightCode('code-line-3'); // NEW
+            logStep("Click 'Next Step' to begin the search by initializing variables.");
+            // highlightCode('code-line-2'); // REMOVED: This was causing the sync issue
         }
 
-        // Function to finish the search
-        function finishSearch(found, foundIndex = -1) {
+        // Function to finish the search (REFACTORED)
+        // This function JUST handles the final UI state
+        function finishVisualization(found, foundIndex = -1, reason = "") {
             vizState.isRunning = false;
             setButtonState('complete');
+            setContextHighlight(null, false); // Clear context
 
             if (found) {
                 logStep(`<strong>Found!</strong> arr[${foundIndex}] (${vizState.sortedArray[foundIndex]}) == target (${vizState.target})`);
                 renderArray(vizState.sortedArray, -1, -1, -1, foundIndex);
-                highlightCode('code-line-16'); // NEW
+                // Highlight will be set by the state that calls this
             } else {
                 logStep(`<h3 class="text-lg font-bold mt-4">Search Finished</h3>`);
-                // Add reason for stopping
-                if (vizState.low > vizState.high) {
-                    logStep(`Condition failed (low > high).`);
-                } else if (vizState.target < vizState.sortedArray[vizState.low]) {
-                    logStep(`Condition failed (target < arr[low] -> ${vizState.target} < ${vizState.sortedArray[vizState.low]}).`);
-                } else if (vizState.target > vizState.sortedArray[vizState.high] && vizState.high >= 0) {
-                    logStep(`Condition failed (target > arr[high] -> ${vizState.target} > ${vizState.sortedArray[vizState.high]}).`);
-                } else {
-                    logStep(`Target is not within the remaining search range.`);
-                }
+                logStep(reason);
                 logStep(`<strong>Target ${vizState.target} not found in the array.</strong>`);
                 renderArray(vizState.sortedArray, -1, -1, -1, -1);
-                highlightCode('code-line-26'); // NEW
+                // Highlight will be set by the state that calls this
             }
         }
         
-        // This function runs ONE part of the step (probe or compare)
+        // This function runs ONE part of the step (probe or compare) (REWRITTEN)
         function performNextStep() {
             if (!vizState.isRunning) return;
 
-            const { sortedArray, target, low, high } = vizState;
+            const { sortedArray, target } = vizState;
+            let { low, high, pos } = vizState; // Make mutable for this scope
 
-            if (vizState.step === 'probe') {
-                // Check loop conditions
-                highlightCode('code-line-5'); // NEW
-                if (low > high || target < sortedArray[low] || target > sortedArray[high]) {
-                    finishSearch(false);
-                    return;
-                }
+            switch(vizState.step) {
+                case 'init_high':
+                    highlightCode('code-line-2'); // MOVED here
+                    logStep(`Setting <strong>high = n - 1 ➔ ${vizState.high}</strong>`);
+                    renderArray(sortedArray, -1, vizState.high);
+                    vizState.step = 'init_low';
+                    // highlightCode('code-line-3'); // REMOVED
+                    break;
 
-                logStep(`<h3 class="text-lg font-bold mt-4">Step ${vizState.stepCount} (Probe)</h3>`);
-                logStep(`Range: <strong>low = ${low}</strong> (value: ${sortedArray[low]}), <strong>high = ${high}</strong> (value: ${sortedArray[high]})`);
-                renderArray(sortedArray, low, high);
-
-                // Handle edge case
-                if (low === high) {
-                    highlightCode('code-line-6'); // NEW
-                    if (sortedArray[low] === target) {
-                        logStep(`low == high. Checking arr[${low}]...`);
-                        highlightCode('code-line-7'); // NEW
-                        finishSearch(true, low);
-                    } else {
-                        logStep(`low == high, but arr[${low}] (${sortedArray[low]}) != target (${target}).`);
-                        highlightCode('code-line-10'); // NEW
-                        finishSearch(false);
-                    }
-                    return;
-                }
-                
-                // Calculate position
-                updateVisualFormula(low, high, target, sortedArray[low], sortedArray[high]);
-                logStep("<strong>Calculating probe position...</strong> (see formula breakdown)");
-                highlightCode('code-line-13'); // NEW
-
-                let valPos = (target - sortedArray[low]);
-                let valRange = (sortedArray[high] - sortedArray[low]);
-                let indexRange = (high - low);
-                let proportion = (valRange === 0) ? 0 : (valPos / valRange);
-                let pos = low + Math.floor(proportion * indexRange);
-                
-                // Handle out-of-bounds probe
-                if (pos < low || pos > high) {
-                     logStep(`<span class="text-red-600 font-bold">Calculated position <strong>${pos}</strong> is out of bounds [${low}, ${high}].</span>`);
-                     logStep(`This can happen with non-uniformly distributed data.`);
-                     finishSearch(false);
-                     return;
-                }
-                
-                vizState.pos = pos; // Save position for compare step
-                logStep(`Probing index <strong>${pos}</strong> (value: <strong class="text-green-600">${sortedArray[pos]}</strong>)`);
-                renderArray(sortedArray, low, high, pos);
-                
-                vizState.step = 'compare'; // Set state for next click
-                highlightCode('code-line-15'); // NEW
-
-            } else if (vizState.step === 'compare') {
-                logStep(`<h3 class="text-lg font-bold mt-4">Step ${vizState.stepCount} (Compare)</h3>`);
-                const { pos } = vizState;
-
-                if (sortedArray[pos] === target) {
-                    finishSearch(true, pos);
-                    return;
-                } else if (sortedArray[pos] < target) {
-                    logStep(`Value is <strong>too low</strong> (${sortedArray[pos]} < ${target}).`);
-                    vizState.low = pos + 1;
+                case 'init_low':
+                    highlightCode('code-line-3'); // MOVED here
                     logStep(`Setting <strong>low ➔ ${vizState.low}</strong>`);
-                    highlightCode('code-line-22'); // NEW
-                } else {
-                    logStep(`Value is <strong>too high</strong> (${sortedArray[pos]} > ${target}).`);
-                    vizState.high = pos - 1;
-                    logStep(`Setting <strong>high ➔ ${vizState.high}</strong>`);
-                    highlightCode('code-line-19'); // NEW
-                }
+                    renderArray(sortedArray, vizState.low, vizState.high);
+                    vizState.step = 'check_while';
+                    // highlightCode('code-line-5'); // REMOVED
+                    break;
+
+                case 'check_while':
+                    logStep(`<h3 class="text-lg font-bold mt-4">Step ${vizState.stepCount} (Check Loop)</h3>`);
+                    highlightCode('code-line-5');
+                    setContextHighlight('code-line-5', true); // Highlight whole loop
+
+                    low = vizState.low;
+                    high = vizState.high;
+
+                    // Check loop conditions
+                    if (sortedArray.length === 0) {
+                         vizState.step = 'finish_fail';
+                         finishVisualization(false, -1, "Array is empty.");
+                         highlightCode('code-line-26');
+                         break;
+                    }
+                    
+                    // Handle edge case where high/low might be out of bounds initially (e.g., empty array)
+                    if (low > high) {
+                        vizState.step = 'finish_fail';
+                        finishVisualization(false, -1, `Loop condition failed: low (${low}) > high (${high})`);
+                        highlightCode('code-line-26');
+                        break;
+                    }
+
+                    const conditionLowHigh = low <= high; // This is now guaranteed true here
+                    const conditionMinBound = target >= sortedArray[low];
+                    const conditionMaxBound = target <= sortedArray[high];
+
+                    logStep(`Checking while(target >= arr[low] && target <= arr[high] && low <= high)`);
+                    logStep(`- target >= arr[low]: (${target} >= ${sortedArray[low]}) ➔ <strong>${conditionMinBound}</strong>`);
+                    logStep(`- target <= arr[high]: (${target} <= ${sortedArray[high]}) ➔ <strong>${conditionMaxBound}</strong>`);
+                    logStep(`- low <= high: (${low} <= ${high}) ➔ <strong>${conditionLowHigh}</strong>`);
+
+                    if (conditionMinBound && conditionMaxBound && conditionLowHigh) {
+                        logStep(`➔ Conditions <strong>TRUE</strong>. Entering loop...`);
+                        vizState.step = 'check_low_high_equal';
+                        // highlightCode('code-line-6'); // REMOVED
+                    } else {
+                        logStep(`➔ Conditions <strong>FALSE</strong>. Exiting loop...`);
+                        vizState.step = 'finish_fail';
+                        finishVisualization(false, -1, "Loop conditions failed.");
+                        highlightCode('code-line-26');
+                    }
+                    break;
+
+                case 'check_low_high_equal':
+                    highlightCode('code-line-6');
+                    logStep(`Checking if low == high... (${vizState.low} == ${vizState.high})`);
+                    if (vizState.low === vizState.high) {
+                        logStep(`➔ <strong>TRUE</strong>. Checking if this one element is the target.`);
+                        highlightCode('code-line-7');
+                        logStep(`Checking if arr[low] == value... (${sortedArray[vizState.low]} == ${target})`);
+                        if (sortedArray[vizState.low] === target) {
+                            logStep(`➔ <strong>TRUE</strong>. Value found.`);
+                            vizState.step = 'finish_found';
+                            finishVisualization(true, vizState.low);
+                            highlightCode('code-line-8');
+                        } else {
+                            logStep(`➔ <strong>FALSE</strong>. Value not found. Breaking loop.`);
+                            vizState.step = 'finish_fail_break';
+                            finishVisualization(false, -1, `low == high, but arr[low] != target.`);
+                            highlightCode('code-line-10');
+                        }
+                    } else {
+                        logStep(`➔ <strong>FALSE</strong>. Proceeding to calculate probe.`);
+                        vizState.step = 'calculate_probe';
+                        // highlightCode('code-line-13'); // REMOVED
+                    }
+                    break;
                 
-                // Render array with new bounds (probe is gone)
-                renderArray(sortedArray, vizState.low, vizState.high);
+                case 'check_low_high_equal_found':
+                    // This state is now merged into 'check_low_high_equal'
+                    break;
+
+                case 'calculate_probe':
+                    logStep(`<strong>Calculating probe position...</strong>`);
+                    highlightCode('code-line-13');
+                    
+                    low = vizState.low;
+                    high = vizState.high;
+                    
+                    updateVisualFormula(low, high, target, sortedArray[low], sortedArray[high]);
+
+                    let valPos = (target - sortedArray[low]);
+                    let valRange = (sortedArray[high] - sortedArray[low]);
+                    let indexRange = (high - low);
+                    
+                    if (valRange === 0) {
+                        pos = low;
+                    } else {
+                        pos = low + Math.floor((indexRange * valPos) / valRange);
+                    }
+                    
+                    if (pos < low || pos > high) {
+                         logStep(`<span class="text-red-600 font-bold">Calculated position <strong>${pos}</strong> is out of bounds [${low}, ${high}].</span>`);
+                         logStep(`This can happen with non-uniformly distributed data. Search terminating.`);
+                         vizState.step = 'finish_fail';
+                         finishVisualization(false, -1, "Calculated probe was out of bounds.");
+                         highlightCode('code-line-26');
+                         break;
+                    }
+                    
+                    vizState.pos = pos; // Save position
+                    logStep(`Probing index <strong>${pos}</strong> (value: <strong class="text-green-600">${sortedArray[pos]}</strong>)`);
+                    renderArray(sortedArray, low, high, pos);
+                    
+                    vizState.step = 'check_and_update_probe';
+                    // highlightCode('code-line-15'); // REMOVED
+                    break;
+
+                case 'check_probe_equal':
+                    // This state is merged into 'check_and_update_probe'
+                    break;
+
+                case 'check_probe_greater':
+                    // This state is merged into 'check_and_update_probe'
+                    break;
+
+                case 'update_high':
+                    // This state is merged into 'check_and_update_probe'
+                    break;
+
+                case 'update_low':
+                    // This state is merged into 'check_and_update_probe'
+                    break;
                 
-                vizState.step = 'probe'; // Set state for next click
-                vizState.stepCount++;
+                case 'check_and_update_probe':
+                    pos = vizState.pos;
+                    logStep(`<h3 class="text-lg font-bold mt-4">Step ${vizState.stepCount} (Compare & Update)</h3>`);
+                    
+                    // Check: if (array[probe]==value)
+                    highlightCode('code-line-15');
+                    logStep(`Checking if arr[probe] == value... (${sortedArray[pos]} == ${target})`);
+                    if (sortedArray[pos] === target) {
+                        logStep(`➔ <strong>TRUE</strong>. Value found.`);
+                        vizState.step = 'finish_found';
+                        finishVisualization(true, pos);
+                        highlightCode('code-line-16');
+                    }
+                    
+                    // Check: else if (array[probe]>value)
+                    else {
+                        highlightCode('code-line-18');
+                        logStep(`Checking if arr[probe] > value... (${sortedArray[pos]} > ${target})`);
+                        if (sortedArray[pos] > target) {
+                            logStep(`➔ <strong>TRUE</strong>. Value is too high.`);
+                            vizState.high = pos - 1;
+                            logStep(`Setting <strong>high ➔ ${vizState.high}</strong>`);
+                            highlightCode('code-line-19'); // Update highlight to what just happened
+                            renderArray(sortedArray, vizState.low, vizState.high);
+                            vizState.step = 'check_while'; // Go back to loop check
+                            vizState.stepCount++;
+                        }
+                        
+                        // Check: else
+                        else {
+                            highlightCode('code-line-21');
+                            logStep(`➔ <strong>FALSE</strong>. Value must be too low.`);
+                            vizState.low = pos + 1;
+                            logStep(`Setting <strong>low ➔ ${vizState.low}</strong>`);
+                            highlightCode('code-line-22'); // Update highlight to what just happened
+                            renderArray(sortedArray, vizState.low, vizState.high);
+                            vizState.step = 'check_while'; // Go back to loop check
+                            vizState.stepCount++;
+                        }
+                    }
+                    break;
+
+                case 'finish_found':
+                case 'finish_fail':
+                case 'finish_fail_break':
+                    // Do nothing, search is over.
+                    break;
             }
         }
 
         // Full reset of the app
         function fullReset() {
             vizState.isRunning = false;
-            vizState.step = 'probe';
+            vizState.step = 'init_high'; // Reset step
             vizState.stepCount = 1;
-            sortedArray = [];
+            // sortedArray = []; // Not needed, vizState is reset
             arrayInput.value = '';
             targetInput.value = '';
             randomCountInput.value = '';
@@ -707,6 +845,7 @@
             setButtonState('idle');
             codeContainer.classList.add('hidden'); // NEW
             highlightCode(null); // NEW
+            setContextHighlight(null, false); // NEW
         }
 
         // Generate Random Array
@@ -736,4 +875,7 @@
     </script>
 </body>
 </html>
+
+
+
 
