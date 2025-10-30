@@ -4,7 +4,7 @@ An interactive, web-based tool designed to make the Interpolation Search algorit
 
 
 
-**➡️ [Live Demo Link Here] ⬅️** _(Hint: You can host this for free on GitHub Pages!)_
+**➡️ https://jbndct.github.io/Interpolation-Search-Visualizer ⬅️** 
 
 ## ✨ About The Project
 
@@ -43,14 +43,10 @@ This project is built with vanilla web technologies, keeping it simple and acces
 
 1.  Clone this repository:
     ```bash
-    git clone [https://github.com/YOUR_USERNAME/YOUR_REPOSITORY_NAME.git](https://github.com/YOUR_USERNAME/YOUR_REPOSITORY_NAME.git)
+    git clone https://github.com/jbndct/Interpolation-Search-Visualizer
     ```
 2.  Navigate to the project directory:
     ```bash
-    cd YOUR_REPOSITORY_NAME
+    cd Interpolation-Search-Visualizer
     ```
 3.  Open the `interpolation_search_visualizer.html` file in your favorite web browser.
-
-## 📄 License
-
-This project is licensed under the MIT License. See the `LICENSE` file for more details.
