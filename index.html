@@ -228,15 +228,42 @@
 
             <!-- Control Buttons -->
             <div class="flex justify-center mb-6 gap-4">
-                <button id="start-button" class="w-full md:w-1/3 p-3 bg-blue-600 text-white font-bold rounded-lg shadow-md hover:bg-blue-700 transition-all duration-300 text-lg">
+                <button id="start-button" class="w-full md:w-1/4 p-3 bg-blue-600 text-white font-bold rounded-lg shadow-md hover:bg-blue-700 transition-all duration-300 text-lg">
                     Start Visualization
                 </button>
-                <button id="next-step-button" class="w-full md:w-1/3 p-3 bg-green-600 text-white font-bold rounded-lg shadow-md hover:bg-green-700 transition-all duration-300 text-lg hidden">
+                <!-- NEW: Previous Step Button -->
+                <button id="prev-step-button" class="w-full md:w-1/4 p-3 bg-gray-500 text-white font-bold rounded-lg shadow-md hover:bg-gray-600 transition-all duration-300 text-lg hidden">
+                    ⬅ Previous Step
+                </button>
+                <button id="next-step-button" class="w-full md:w-1/4 p-3 bg-green-600 text-white font-bold rounded-lg shadow-md hover:bg-green-700 transition-all duration-300 text-lg hidden">
                     Next Step ➔
                 </button>
-                <button id="reset-button" class="w-full md:w-1/3 p-3 bg-gray-500 text-white font-bold rounded-lg shadow-md hover:bg-gray-600 transition-all duration-300 text-lg hidden">
+                <button id="reset-button" class="w-full md:w-1/4 p-3 bg-gray-500 text-white font-bold rounded-lg shadow-md hover:bg-gray-600 transition-all duration-300 text-lg hidden">
                     Reset
                 </button>
+            </div>
+
+            <!-- NEW: View Toggles -->
+            <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg bg-white mb-6 shadow-sm">
+                <h3 class="text-lg font-semibold mb-3 text-center text-gray-700">View Options</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <label class="flex items-center justify-center p-2 bg-white border-2 rounded-lg shadow-sm has-[:checked]:bg-blue-50 has-[:checked]:border-blue-400 cursor-pointer transition-all">
+                        <input type="checkbox" id="toggle-array" class="form-checkbox h-5 w-5 text-blue-600 rounded mr-2 focus:ring-blue-500" checked>
+                        <span class="text-sm font-medium text-gray-800">Array View</span>
+                    </label>
+                    <label class="flex items-center justify-center p-2 bg-white border-2 rounded-lg shadow-sm has-[:checked]:bg-blue-50 has-[:checked]:border-blue-400 cursor-pointer transition-all">
+                        <input type="checkbox" id="toggle-formula" class="form-checkbox h-5 w-5 text-blue-600 rounded mr-2 focus:ring-blue-500" checked>
+                        <span class="text-sm font-medium text-gray-800">Formula View</span>
+                    </label>
+                    <label class="flex items-center justify-center p-2 bg-white border-2 rounded-lg shadow-sm has-[:checked]:bg-blue-50 has-[:checked]:border-blue-400 cursor-pointer transition-all">
+                        <input type="checkbox" id="toggle-code" class="form-checkbox h-5 w-5 text-blue-600 rounded mr-2 focus:ring-blue-500" checked>
+                        <span class="text-sm font-medium text-gray-800">Code View</span>
+                    </label>
+                    <label class="flex items-center justify-center p-2 bg-white border-2 rounded-lg shadow-sm has-[:checked]:bg-blue-50 has-[:checked]:border-blue-400 cursor-pointer transition-all">
+                        <input type="checkbox" id="toggle-log" class="form-checkbox h-5 w-5 text-blue-600 rounded mr-2 focus:ring-blue-500" checked>
+                        <span class="text-sm font-medium text-gray-800">Log View</span>
+                    </label>
+                </div>
             </div>
 
             <!-- NEW: Core Concept Box -->
@@ -250,8 +277,8 @@
                 </div>
             </div>
 
-            <!-- Visualization Area -->
-            <div class="bg-white rounded-xl shadow-xl p-6 md:p-8 mb-8">
+            <!-- Visualization Area (ID ADDED) -->
+            <div id="component-array-container" class="bg-white rounded-xl shadow-xl p-6 md:p-8 mb-8">
                 <h2 class="text-2xl font-semibold mb-6 text-center">Array Visualization</h2>
                 <div id="array-container" class="w-full min-h-[150px] p-4 border-2 border-dashed border-gray-300 rounded-lg flex flex-wrap justify-center items-start gap-3 md:gap-4 pt-8">
                     <span class="text-gray-400">Enter data and press 'Start' to see the visualization.</span>
@@ -263,8 +290,8 @@
                 
                 <!-- Column 1: Formula + Code -->
                 <div>
-                    <!-- Visual Formula (Redesigned) -->
-                    <div id="visual-formula-container" class="bg-white rounded-xl shadow-xl p-6 md:p-8 hidden">
+                    <!-- Visual Formula (Redesigned) (ID ADDED) -->
+                    <div id="component-formula-container" class="bg-white rounded-xl shadow-xl p-6 md:p-8 hidden">
                         <h2 class="text-2xl font-semibold mb-4 text-center">Live Formula Breakdown</h2>
                         <!-- **** THIS BLOCK IS UPDATED **** -->
                         <div class="formula-box">
@@ -297,8 +324,8 @@
                         <!-- **** END OF UPDATED BLOCK **** -->
                     </div>
 
-                    <!-- NEW: Code Container -->
-                    <div id="code-container" class="bg-white rounded-xl shadow-xl p-6 md:p-8 mt-8 hidden">
+                    <!-- NEW: Code Container (ID ADDED) -->
+                    <div id="component-code-container" class="bg-white rounded-xl shadow-xl p-6 md:p-8 mt-8 hidden">
                         <h2 class="text-2xl font-semibold mb-4 text-center">C++ Code</h2>
                         <div class="bg-gray-900 text-gray-300 rounded-lg p-4 overflow-x-auto text-sm">
                             <pre><code class="language-cpp">
@@ -334,8 +361,8 @@
                     </div>
                 </div>
 
-                <!-- Column 2: Explanation Log -->
-                <div class="bg-white rounded-xl shadow-xl p-6 md:p-8">
+                <!-- Column 2: Explanation Log (ID ADDED) -->
+                <div id="component-log-container" class="bg-white rounded-xl shadow-xl p-6 md:p-8">
                     <h2 class="text-2xl font-semibold mb-4 text-center">Step-by-Step Explanation</h2>
                     <div id="explanation-log" class="w-full h-96 overflow-y-auto p-4 border border-gray-300 rounded-lg bg-gray-50 shadow-inner">
                         <span class="text-gray-400">Detailed steps will appear here...</span>
@@ -353,32 +380,29 @@
         const randomCountInput = document.getElementById('random-count');
         const generateRandomButton = document.getElementById('generate-random');
         const startButton = document.getElementById('start-button');
-        const nextStepButton = document.getElementById('next-step-button'); // New button
+        const prevStepButton = document.getElementById('prev-step-button'); // NEW
+        const nextStepButton = document.getElementById('next-step-button');
         const resetButton = document.getElementById('reset-button');
         const arrayContainer = document.getElementById('array-container');
         const explanationLog = document.getElementById('explanation-log');
-        const visualFormulaContainer = document.getElementById('visual-formula-container');
-        const codeContainer = document.getElementById('code-container'); // NEW
+        const visualFormulaContainer = document.getElementById('component-formula-container');
+        const codeContainer = document.getElementById('component-code-container');
 
-        // Visual Formula DOM Elements (UPDATED)
+        // Visual Formula DOM Elements
         const vf = {
             high: document.getElementById('vf-high'),
             low: document.getElementById('vf-low'),
             indexRange: document.getElementById('vf-index-range'),
-            
             target: document.getElementById('vf-target'),
             arrLow: document.getElementById('vf-arr-low'),
             valPos: document.getElementById('vf-val-pos'),
-            
             arrHigh: document.getElementById('vf-arr-high'),
             arrLow2: document.getElementById('vf-arr-low-2'),
             valRange: document.getElementById('vf-val-range'),
-
             indexRange2: document.getElementById('vf-index-range-2'),
             valPos2: document.getElementById('vf-val-pos-2'),
             valRange2: document.getElementById('vf-val-range-2'),
             calcRes: document.getElementById('vf-calc-res'),
-
             low2: document.getElementById('vf-low-2'),
             calcRes2: document.getElementById('vf-calc-res-2'),
             result: document.getElementById('vf-result')
@@ -388,82 +412,52 @@
         // Global state object for manual stepping (UPDATED)
         let vizState = {
             isRunning: false,
-            step: 'init_high', // 'init_high' -> 'init_low', 'check_while', 'check_low_high_equal', 'calculate_probe', 'check_and_update_probe', 'finish_found', 'finish_fail', 'finish_fail_break'
+            step: 'init_high',
             sortedArray: [],
             target: 0,
             low: 0,
             high: 0,
             pos: -1,
-            stepCount: 1
+            stepCount: 1,
+            // NEW properties for history
+            logHTML: '',
+            foundIndex: -1,
+            currentHighlightLineId: null,
+            isLoopContextActive: false,
+            formulaData: null
         };
+        
+        let currentHighlight = null;
+        let currentContextHighlight = null;
+        let historyStack = []; // NEW: For previous step
 
-        let currentHighlight = null; // NEW: For code highlighting
-        let currentContextHighlight = null; // NEW: For loop context
+        // NEW: Helper to create a deep copy of the state
+        function deepCopy(obj) {
+            try {
+                return JSON.parse(JSON.stringify(obj));
+            } catch (e) {
+                console.error("Failed to deep copy state:", e);
+                return obj; // Fallback (not ideal)
+            }
+        }
 
         // Helper: Flash effect for updated values
         function flashUpdate(elements) {
-            // ... (same as before)
             const elementsToFlash = Array.isArray(elements) ? elements : [elements];
             elementsToFlash.forEach(el => {
-                if (el) { // Check if element exists
+                if (el) {
                     el.classList.add('updated');
                     setTimeout(() => {
                         el.classList.remove('updated');
-                    }, 500); // Duration of the flash
+                    }, 500);
                 }
             });
         }
 
-        // Helper: Update Visual Formula (UPDATED)
-        function updateVisualFormula(lowVal, highVal, targetVal, arrLowVal, arrHighVal) {
-            const indexRange = (highVal - lowVal);
-            const valPos = (targetVal - arrLowVal);
-            const valRange = (arrHighVal - arrLowVal);
-            
-            // Handle division by zero case
-            let calcRes = 0;
-            if (valRange !== 0) {
-                calcRes = Math.floor((indexRange * valPos) / valRange);
-            }
+        // --- REFACTORED RENDER FUNCTIONS (BUG FIX) ---
 
-            const pos = lowVal + calcRes;
-
-            vf.high.textContent = highVal;
-            vf.low.textContent = lowVal;
-            vf.indexRange.textContent = indexRange;
-
-            vf.target.textContent = targetVal;
-            vf.arrLow.textContent = arrLowVal;
-            vf.valPos.textContent = valPos;
-
-            vf.arrHigh.textContent = arrHighVal;
-            vf.arrLow2.textContent = arrLowVal;
-            vf.valRange.textContent = valRange;
-
-            vf.indexRange2.textContent = indexRange;
-            vf.valPos2.textContent = valPos;
-            vf.valRange2.textContent = valRange;
-            vf.calcRes.textContent = calcRes;
-
-            vf.low2.textContent = lowVal;
-            vf.calcRes2.textContent = calcRes;
-            vf.result.textContent = pos;
-
-            flashUpdate(allVfSpans);
-            visualFormulaContainer.classList.remove('hidden');
-        }
-
-        // Helper: Reset Visual Formula
-        function resetVisualFormula() {
-            // Reset all spans, checking if they exist first
-            allVfSpans.forEach(span => {
-                if(span) span.textContent = '?';
-            });
-            visualFormulaContainer.classList.add('hidden');
-        }
-
-        // NEW: Helper: Highlight a line of code
-        function highlightCode(lineId) {
+        // NEW: "Pure" DOM render functions. These DO NOT touch vizState.
+        function _renderHighlight(lineId) {
             if (currentHighlight) {
                 currentHighlight.classList.remove('code-line-highlight');
             }
@@ -478,8 +472,7 @@
             }
         }
 
-        // NEW: Helper: Highlight a line of code context (e.g., the while loop)
-        function setContextHighlight(lineId, active) {
+        function _renderContextHighlight(lineId, active) {
             if (currentContextHighlight) {
                 currentContextHighlight.classList.remove('code-line-context');
                 currentContextHighlight = null;
@@ -492,30 +485,109 @@
                 }
             }
         }
-
-        // Helper: Log a step
-        function logStep(message, isFormula = false) {
-            // ... (same as before)
-            if (isFormula) {
-                const logEntry = document.createElement('div');
-                logEntry.className = 'formula-log';
-                logEntry.innerHTML = message;
-                explanationLog.appendChild(logEntry);
-            } else {
-                const logEntry = document.createElement('div');
-                logEntry.className = 'p-2 border-b border-gray-200';
-                logEntry.innerHTML = message;
-                explanationLog.appendChild(logEntry);
-            }
+        
+        function _renderLog(html) {
+            explanationLog.innerHTML = html;
             explanationLog.scrollTop = explanationLog.scrollHeight;
         }
 
-        // Helper: Render the array
+        function _resetFormula() {
+            allVfSpans.forEach(span => {
+                if(span) span.textContent = '?';
+            });
+            // Only hide if the toggle is not forcing it to be open
+            if (!vizState.isRunning || !document.getElementById('toggle-formula').checked) {
+                 visualFormulaContainer.classList.add('hidden');
+            }
+        }
+
+        function _renderFormula(formulaData) {
+            if (!formulaData) {
+                _resetFormula();
+                return;
+            }
+
+            const { lowVal, highVal, targetVal, arrLowVal, arrHighVal } = formulaData;
+            
+            const indexRange = (highVal - lowVal);
+            const valPos = (targetVal - arrLowVal);
+            const valRange = (arrHighVal - arrLowVal);
+            
+            let calcRes = 0;
+            if (valRange !== 0) {
+                calcRes = Math.floor((indexRange * valPos) / valRange);
+            }
+
+            const pos = lowVal + calcRes;
+
+            vf.high.textContent = highVal;
+            vf.low.textContent = lowVal;
+            vf.indexRange.textContent = indexRange;
+            vf.target.textContent = targetVal;
+            vf.arrLow.textContent = arrLowVal;
+            vf.valPos.textContent = valPos;
+            vf.arrHigh.textContent = arrHighVal;
+            vf.arrLow2.textContent = arrLowVal;
+            vf.valRange.textContent = valRange;
+            vf.indexRange2.textContent = indexRange;
+            vf.valPos2.textContent = valPos;
+            vf.valRange2.textContent = valRange;
+            vf.calcRes.textContent = calcRes;
+            vf.low2.textContent = lowVal;
+            vf.calcRes2.textContent = calcRes;
+            vf.result.textContent = pos;
+
+            if (document.getElementById('toggle-formula').checked) {
+                flashUpdate(allVfSpans);
+                visualFormulaContainer.classList.remove('hidden');
+            }
+        }
+
+        // --- End of "Pure" Render Functions ---
+
+
+        // Helper: Update Visual Formula (UPDATED to save state and call pure render)
+        function updateVisualFormula(lowVal, highVal, targetVal, arrLowVal, arrHighVal) {
+            // NEW: Save data to state
+            vizState.formulaData = { lowVal, highVal, targetVal, arrLowVal, arrHighVal };
+            _renderFormula(vizState.formulaData); // Call pure render
+        }
+
+        // Helper: Reset Visual Formula (UPDATED to save state and call pure render)
+        function resetVisualFormula() {
+            vizState.formulaData = null; // NEW: Save state
+            _resetFormula(); // Call pure render
+        }
+
+        // NEW: Helper: Highlight a line of code (UPDATED to save state and call pure render)
+        function highlightCode(lineId) {
+            vizState.currentHighlightLineId = lineId; // NEW: Save state
+            _renderHighlight(lineId); // Call pure render
+        }
+
+        // NEW: Helper: Highlight a line of code context (UPDATED to save state and call pure render)
+        function setContextHighlight(lineId, active) {
+            vizState.isLoopContextActive = active; // NEW: Save state
+            _renderContextHighlight(lineId, active); // Call pure render
+        }
+
+        // Helper: Log a step (UPDATED to save state and call pure render)
+        function logStep(message, isFormula = false) {
+            let logEntryHtml = '';
+            if (isFormula) {
+                logEntryHtml = `<div class="formula-log">${message}</div>`;
+            } else {
+                logEntryHtml = `<div class="p-2 border-b border-gray-200">${message}</div>`;
+            }
+            vizState.logHTML += logEntryHtml; // Append to state
+            _renderLog(vizState.logHTML); // Call pure render
+        }
+
+        // Helper: Render the array (This was already pure, no changes needed)
         function renderArray(arr, low = -1, high = -1, probe = -1, found = -1) {
-            // ... (same as before)
             arrayContainer.innerHTML = '';
             arr.forEach((value, index) => {
-                const elementWrapper = document.createElement('div'); // NEW wrapper
+                const elementWrapper = document.createElement('div');
                 elementWrapper.className = 'flex flex-col items-center';
 
                 const box = document.createElement('div');
@@ -529,37 +601,43 @@
                     box.classList.add('disabled');
                 }
                 
-                elementWrapper.appendChild(box); // Add box to wrapper
+                elementWrapper.appendChild(box);
 
-                const indexLabel = document.createElement('div'); // NEW index label
+                const indexLabel = document.createElement('div');
                 indexLabel.className = 'text-sm font-semibold text-gray-500 mt-1';
                 indexLabel.textContent = index;
-                elementWrapper.appendChild(indexLabel); // Add label to wrapper
+                elementWrapper.appendChild(indexLabel);
 
-                arrayContainer.appendChild(elementWrapper); // Add wrapper to container
+                arrayContainer.appendChild(elementWrapper);
             });
         }
 
-        // --- NEW/MODIFIED FUNCTIONS ---
-
-        // Manages button visibility
+        // Manages button visibility (UPDATED for prev button)
         function setButtonState(state) {
             if (state === 'idle') {
                 startButton.classList.remove('hidden');
                 nextStepButton.classList.add('hidden');
+                prevStepButton.classList.add('hidden'); // NEW
                 resetButton.classList.add('hidden');
             } else if (state === 'active') {
                 startButton.classList.add('hidden');
                 nextStepButton.classList.remove('hidden');
                 resetButton.classList.remove('hidden');
+                // NEW: Show/hide prev button
+                if (historyStack.length > 1) {
+                    prevStepButton.classList.remove('hidden');
+                } else {
+                    prevStepButton.classList.add('hidden');
+                }
             } else if (state === 'complete') {
                 startButton.classList.add('hidden');
                 nextStepButton.classList.add('hidden');
-                resetButton.classList.remove('hidden');
+                prevStepButton.classList.add('hidden'); // NEW
+                resetButton.classList.remove('hidden'); // Show reset
             }
         }
 
-        // Main setup function (formerly startVisualization) (UPDATED)
+        // Main setup function (UPDATED for history)
         function initializeSearch() {
             // 1. Get and parse inputs
             const rawArray = arrayInput.value.split(',')
@@ -579,8 +657,9 @@
             }
 
             // 2. Clear logs and sort the array
-            explanationLog.innerHTML = '';
-            resetVisualFormula();
+            explanationLog.innerHTML = ''; // Clear log first
+            vizState.logHTML = ''; // NEW: Clear log state
+            resetVisualFormula(); // This now clears state AND renders
             logStep(`<strong>Starting search for ${target}</strong> in array: [${rawArray.join(', ')}]`);
             logStep(`Interpolation search requires a <strong>sorted array</strong>. Sorting...`);
             
@@ -591,78 +670,94 @@
             renderArray(sorted);
             logStep(`Sorted array: [<strong>${sorted.join(', ')}</strong>]`);
 
-            // 3. Initialize search state
+            // 3. Initialize search state (UPDATED)
             vizState = {
                 isRunning: true,
-                step: 'init_high', // Start at new init step
+                step: 'init_high',
                 sortedArray: sorted,
                 target: target,
                 low: 0,
                 high: sorted.length - 1,
                 pos: -1,
-                stepCount: 1
+                stepCount: 1,
+                logHTML: '', // Will be set after all logs
+                foundIndex: -1,
+                currentHighlightLineId: null,
+                isLoopContextActive: false,
+                formulaData: null
             };
             
             // 4. Set UI to active
             setButtonState('active');
-            codeContainer.classList.remove('hidden'); // NEW
+            
+            // Only show components if their toggles are checked
+            if (document.getElementById('toggle-code').checked) {
+                codeContainer.classList.remove('hidden');
+            }
+            if (document.getElementById('toggle-formula').checked) {
+                // Formula will be shown by updateVisualFormula when needed
+            }
+
             logStep("Click 'Next Step' to begin the search by initializing variables.");
-            // highlightCode('code-line-2'); // REMOVED: This was causing the sync issue
+            
+            // 5. NEW: Save initial state to history
+            // vizState.logHTML = explanationLog.innerHTML; // No longer needed, logStep does this
+            historyStack = []; // Clear history
+            historyStack.push(deepCopy(vizState)); // Push the *initial* state (S0)
+            setButtonState('active'); // Call again to set prev button (it will be hidden)
         }
 
-        // Function to finish the search (REFACTORED)
-        // This function JUST handles the final UI state
+        // Function to finish the search (UPDATED to save state)
         function finishVisualization(found, foundIndex = -1, reason = "") {
             vizState.isRunning = false;
+            vizState.foundIndex = foundIndex; // NEW: Save found index
             setButtonState('complete');
-            setContextHighlight(null, false); // Clear context
+            setContextHighlight(null, false); // This calls pure render
 
             if (found) {
                 logStep(`<strong>Found!</strong> arr[${foundIndex}] (${vizState.sortedArray[foundIndex]}) == target (${vizState.target})`);
                 renderArray(vizState.sortedArray, -1, -1, -1, foundIndex);
-                // Highlight will be set by the state that calls this
             } else {
                 logStep(`<h3 class="text-lg font-bold mt-4">Search Finished</h3>`);
                 logStep(reason);
                 logStep(`<strong>Target ${vizState.target} not found in the array.</strong>`);
                 renderArray(vizState.sortedArray, -1, -1, -1, -1);
-                // Highlight will be set by the state that calls this
             }
+            // Log is saved by logStep
         }
         
-        // This function runs ONE part of the step (probe or compare) (REWRITTEN)
+        // This function runs ONE part of the step (UPDATED for history)
         function performNextStep() {
             if (!vizState.isRunning) return;
 
+            // State is mutated directly by the switch statement.
+            // Helper functions (logStep, highlightCode, etc.) will update vizState.
             const { sortedArray, target } = vizState;
-            let { low, high, pos } = vizState; // Make mutable for this scope
+            let { low, high, pos } = vizState; 
 
             switch(vizState.step) {
                 case 'init_high':
-                    highlightCode('code-line-2'); // MOVED here
+                    highlightCode('code-line-2');
                     logStep(`Setting <strong>high = n - 1 ➔ ${vizState.high}</strong>`);
-                    renderArray(sortedArray, -1, vizState.high);
+                    renderArray(sortedArray, -1, vizState.high, -1); // Render with no probe
                     vizState.step = 'init_low';
-                    // highlightCode('code-line-3'); // REMOVED
                     break;
 
                 case 'init_low':
-                    highlightCode('code-line-3'); // MOVED here
+                    highlightCode('code-line-3');
                     logStep(`Setting <strong>low ➔ ${vizState.low}</strong>`);
-                    renderArray(sortedArray, vizState.low, vizState.high);
+                    renderArray(sortedArray, vizState.low, vizState.high, -1); // Render with no probe
                     vizState.step = 'check_while';
-                    // highlightCode('code-line-5'); // REMOVED
                     break;
 
                 case 'check_while':
                     logStep(`<h3 class="text-lg font-bold mt-4">Step ${vizState.stepCount} (Check Loop)</h3>`);
                     highlightCode('code-line-5');
-                    setContextHighlight('code-line-5', true); // Highlight whole loop
+                    setContextHighlight('code-line-5', true);
 
                     low = vizState.low;
                     high = vizState.high;
 
-                    // Check loop conditions
                     if (sortedArray.length === 0) {
                          vizState.step = 'finish_fail';
                          finishVisualization(false, -1, "Array is empty.");
@@ -670,7 +765,6 @@
                          break;
                     }
                     
-                    // Handle edge case where high/low might be out of bounds initially (e.g., empty array)
                     if (low > high) {
                         vizState.step = 'finish_fail';
                         finishVisualization(false, -1, `Loop condition failed: low (${low}) > high (${high})`);
@@ -678,7 +772,7 @@
                         break;
                     }
 
-                    const conditionLowHigh = low <= high; // This is now guaranteed true here
+                    const conditionLowHigh = low <= high;
                     const conditionMinBound = target >= sortedArray[low];
                     const conditionMaxBound = target <= sortedArray[high];
 
@@ -690,7 +784,6 @@
                     if (conditionMinBound && conditionMaxBound && conditionLowHigh) {
                         logStep(`➔ Conditions <strong>TRUE</strong>. Entering loop...`);
                         vizState.step = 'check_low_high_equal';
-                        // highlightCode('code-line-6'); // REMOVED
                     } else {
                         logStep(`➔ Conditions <strong>FALSE</strong>. Exiting loop...`);
                         vizState.step = 'finish_fail';
@@ -720,14 +813,9 @@
                     } else {
                         logStep(`➔ <strong>FALSE</strong>. Proceeding to calculate probe.`);
                         vizState.step = 'calculate_probe';
-                        // highlightCode('code-line-13'); // REMOVED
                     }
                     break;
                 
-                case 'check_low_high_equal_found':
-                    // This state is now merged into 'check_low_high_equal'
-                    break;
-
                 case 'calculate_probe':
                     logStep(`<strong>Calculating probe position...</strong>`);
                     highlightCode('code-line-13');
@@ -735,6 +823,7 @@
                     low = vizState.low;
                     high = vizState.high;
                     
+                    // This function now saves data to vizState
                     updateVisualFormula(low, high, target, sortedArray[low], sortedArray[high]);
 
                     let valPos = (target - sortedArray[low]);
@@ -756,35 +845,17 @@
                          break;
                     }
                     
-                    vizState.pos = pos; // Save position
+                    vizState.pos = pos;
                     logStep(`Probing index <strong>${pos}</strong> (value: <strong class="text-green-600">${sortedArray[pos]}</strong>)`);
                     renderArray(sortedArray, low, high, pos);
                     
                     vizState.step = 'check_and_update_probe';
-                    // highlightCode('code-line-15'); // REMOVED
-                    break;
-
-                case 'check_probe_equal':
-                    // This state is merged into 'check_and_update_probe'
-                    break;
-
-                case 'check_probe_greater':
-                    // This state is merged into 'check_and_update_probe'
-                    break;
-
-                case 'update_high':
-                    // This state is merged into 'check_and_update_probe'
-                    break;
-
-                case 'update_low':
-                    // This state is merged into 'check_and_update_probe'
                     break;
                 
                 case 'check_and_update_probe':
                     pos = vizState.pos;
                     logStep(`<h3 class="text-lg font-bold mt-4">Step ${vizState.stepCount} (Compare & Update)</h3>`);
                     
-                    // Check: if (array[probe]==value)
                     highlightCode('code-line-15');
                     logStep(`Checking if arr[probe] == value... (${sortedArray[pos]} == ${target})`);
                     if (sortedArray[pos] === target) {
@@ -793,30 +864,28 @@
                         finishVisualization(true, pos);
                         highlightCode('code-line-16');
                     }
-                    
-                    // Check: else if (array[probe]>value)
                     else {
                         highlightCode('code-line-18');
                         logStep(`Checking if arr[probe] > value... (${sortedArray[pos]} > ${target})`);
                         if (sortedArray[pos] > target) {
                             logStep(`➔ <strong>TRUE</strong>. Value is too high.`);
                             vizState.high = pos - 1;
+                            vizState.pos = -1; // NEW: Clear probe state
                             logStep(`Setting <strong>high ➔ ${vizState.high}</strong>`);
-                            highlightCode('code-line-19'); // Update highlight to what just happened
-                            renderArray(sortedArray, vizState.low, vizState.high);
-                            vizState.step = 'check_while'; // Go back to loop check
+                            highlightCode('code-line-19');
+                            renderArray(sortedArray, vizState.low, vizState.high, -1); // Render with no probe
+                            vizState.step = 'check_while';
                             vizState.stepCount++;
                         }
-                        
-                        // Check: else
                         else {
                             highlightCode('code-line-21');
                             logStep(`➔ <strong>FALSE</strong>. Value must be too low.`);
                             vizState.low = pos + 1;
+                            vizState.pos = -1; // NEW: Clear probe state
                             logStep(`Setting <strong>low ➔ ${vizState.low}</strong>`);
-                            highlightCode('code-line-22'); // Update highlight to what just happened
-                            renderArray(sortedArray, vizState.low, vizState.high);
-                            vizState.step = 'check_while'; // Go back to loop check
+                            highlightCode('code-line-22');
+                            renderArray(sortedArray, vizState.low, vizState.high, -1); // Render with no probe
+                            vizState.step = 'check_while';
                             vizState.stepCount++;
                         }
                     }
@@ -825,17 +894,55 @@
                 case 'finish_found':
                 case 'finish_fail':
                 case 'finish_fail_break':
-                    // Do nothing, search is over.
                     break;
             }
+            
+            // NEW: After the step is complete, push the new state to history
+            // But only if the search isn't over
+            if (vizState.isRunning) {
+                historyStack.push(deepCopy(vizState));
+            }
+            setButtonState('active'); // Update button states
         }
 
-        // Full reset of the app
+        // NEW: Function to restore the entire UI from a given state object (BUG FIX)
+        function renderAllFromState(state) {
+            // 1. Restore log (Uses pure render)
+            _renderLog(state.logHTML);
+            
+            // 2. Restore array (Already pure)
+            renderArray(state.sortedArray, state.low, state.high, state.pos, state.foundIndex);
+            
+            // 3. Restore code highlights (Uses pure render)
+            _renderHighlight(state.currentHighlightLineId); 
+            _renderContextHighlight('code-line-5', state.isLoopContextActive);
+            
+            // 4. Restore formula box (Uses pure render)
+            _renderFormula(state.formulaData); // This one function handles both update and reset
+        }
+
+        // NEW: Function to go back one step
+        function performPreviousStep() {
+            if (historyStack.length <= 1) {
+                console.log("At the beginning of history.");
+                return; // Can't go back any further
+            }
+            
+            historyStack.pop(); // Pop the *current* state
+            vizState = deepCopy(historyStack[historyStack.length - 1]); // Restore the *previous* state
+            
+            // Now, re-render everything from this restored state
+            renderAllFromState(vizState);
+            
+            setButtonState('active'); // Update button visibility
+        }
+
+
+        // Full reset of the app (UPDATED)
         function fullReset() {
             vizState.isRunning = false;
-            vizState.step = 'init_high'; // Reset step
+            vizState.step = 'init_high';
             vizState.stepCount = 1;
-            // sortedArray = []; // Not needed, vizState is reset
             arrayInput.value = '';
             targetInput.value = '';
             randomCountInput.value = '';
@@ -843,23 +950,34 @@
             explanationLog.innerHTML = '<span class="text-gray-400">Detailed steps will appear here...</span>';
             resetVisualFormula();
             setButtonState('idle');
-            codeContainer.classList.add('hidden'); // NEW
-            highlightCode(null); // NEW
-            setContextHighlight(null, false); // NEW
+            codeContainer.classList.add('hidden');
+            highlightCode(null);
+            setContextHighlight(null, false);
+            historyStack = []; // NEW: Clear history
+            prevStepButton.classList.add('hidden'); // NEW
+
+            // Reset toggles to default
+            document.getElementById('toggle-array').checked = true;
+            document.getElementById('toggle-formula').checked = true;
+            document.getElementById('toggle-code').checked = true;
+            document.getElementById('toggle-log').checked = true;
+            document.getElementById('component-array-container').classList.remove('hidden');
+            document.getElementById('component-formula-container').classList.add('hidden');
+            document.getElementById('component-code-container').classList.add('hidden');
+            document.getElementById('component-log-container').classList.remove('hidden');
         }
 
         // Generate Random Array
         function generateRandom() {
             const count = Number(randomCountInput.value);
             if (count <= 0 || count > 100) {
-                // Use a custom modal or inline message instead of alert
+                explanationLog.innerHTML = ''; // Clear log
                 logStep("<strong>Error:</strong> Please enter a number between 1 and 100 for random generation.");
                 return;
             }
             
             let randomNumbers = new Set();
             while(randomNumbers.size < count) {
-                // Generate numbers between 1 and 200
                 randomNumbers.add(Math.floor(Math.random() * 200) + 1);
             }
             
@@ -868,14 +986,36 @@
 
         // Event Listeners
         startButton.addEventListener('click', initializeSearch);
-        nextStepButton.addEventListener('click', performNextStep); // New listener
+        prevStepButton.addEventListener('click', performPreviousStep); // NEW listener
+        nextStepButton.addEventListener('click', performNextStep);
         resetButton.addEventListener('click', fullReset);
         generateRandomButton.addEventListener('click', generateRandom);
+
+        // --- NEW: View Toggles Listeners ---
+        document.getElementById('toggle-array').addEventListener('change', (e) => {
+            document.getElementById('component-array-container').classList.toggle('hidden', !e.target.checked);
+        });
+        document.getElementById('toggle-formula').addEventListener('change', (e) => {
+            // This one is special because it's controlled by the viz state
+            if (e.target.checked && vizState.isRunning && vizState.formulaData) {
+                visualFormulaContainer.classList.remove('hidden');
+            } else if (!e.target.checked) {
+                visualFormulaContainer.classList.add('hidden');
+            }
+        });
+        document.getElementById('toggle-code').addEventListener('change', (e) => {
+             if (e.target.checked && vizState.isRunning) {
+                codeContainer.classList.remove('hidden');
+            } else if (!e.target.checked) {
+                codeContainer.classList.add('hidden');
+            }
+        });
+        document.getElementById('toggle-log').addEventListener('change', (e) => {
+            document.getElementById('component-log-container').classList.toggle('hidden', !e.target.checked);
+        });
+        // --- End of View Toggles Listeners ---
 
     </script>
 </body>
 </html>
-
-
-
 
