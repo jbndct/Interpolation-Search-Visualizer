@@ -5,43 +5,50 @@
  * It reads a state object and updates the UI accordingly.
  */
 
-// Cache DOM elements for performance
-const DOM = {
-    arrayInput: document.getElementById('array-input'),
-    targetInput: document.getElementById('target-input'),
-    randomCountInput: document.getElementById('random-count'),
-    generateRandomButton: document.getElementById('generate-random'),
-    startButton: document.getElementById('start-button'),
-    prevStepButton: document.getElementById('prev-step-button'),
-    nextStepButton: document.getElementById('next-step-button'),
-    resetButton: document.getElementById('reset-button'),
-    arrayContainer: document.getElementById('array-container'),
-    explanationLog: document.getElementById('explanation-log'),
-    visualFormulaContainer: document.getElementById('component-formula-container'),
-    codeContainer: document.getElementById('component-code-container'),
-    vf: {
-        high: document.getElementById('vf-high'), low: document.getElementById('vf-low'),
-        indexRange: document.getElementById('vf-index-range'), target: document.getElementById('vf-target'),
-        arrLow: document.getElementById('vf-arr-low'), valPos: document.getElementById('vf-val-pos'),
-        arrHigh: document.getElementById('vf-arr-high'), arrLow2: document.getElementById('vf-arr-low-2'),
-        valRange: document.getElementById('vf-val-range'), indexRange2: document.getElementById('vf-index-range-2'),
-        valPos2: document.getElementById('vf-val-pos-2'), valRange2: document.getElementById('vf-val-range-2'),
-        calcRes: document.getElementById('vf-calc-res'), low2: document.getElementById('vf-low-2'),
-        calcRes2: document.getElementById('vf-calc-res-2'), result: document.getElementById('vf-result')
-    },
-    toggles: {
-        array: document.getElementById('toggle-array'),
-        formula: document.getElementById('toggle-formula'),
-        code: document.getElementById('toggle-code'),
-        log: document.getElementById('toggle-log'),
-    },
-    components: {
-        array: document.getElementById('component-array-container'),
-        formula: document.getElementById('component-formula-container'),
-        code: document.getElementById('component-code-container'),
-        log: document.getElementById('component-log-container'),
-    }
-};
+// *** MODIFIED: Initialize as an empty object. ***
+// We will fill this object *after* the DOM has loaded.
+let DOM = {};
+
+// *** NEW: Function to cache all DOM elements ***
+function _cacheDOMElements() {
+    DOM = {
+        arrayInput: document.getElementById('array-input'),
+        targetInput: document.getElementById('target-input'),
+        randomCountInput: document.getElementById('random-count'),
+        generateRandomButton: document.getElementById('generate-random'),
+        startButton: document.getElementById('start-button'),
+        prevStepButton: document.getElementById('prev-step-button'),
+        nextStepButton: document.getElementById('next-step-button'),
+        resetButton: document.getElementById('reset-button'),
+        arrayContainer: document.getElementById('array-container'),
+        explanationLog: document.getElementById('explanation-log'),
+        visualFormulaContainer: document.getElementById('component-formula-container'),
+        codeContainer: document.getElementById('component-code-container'),
+        vf: {
+            high: document.getElementById('vf-high'), low: document.getElementById('vf-low'),
+            indexRange: document.getElementById('vf-index-range'), target: document.getElementById('vf-target'),
+            arrLow: document.getElementById('vf-arr-low'), valPos: document.getElementById('vf-val-pos'),
+            arrHigh: document.getElementById('vf-arr-high'), arrLow2: document.getElementById('vf-arr-low-2'),
+            valRange: document.getElementById('vf-val-range'), indexRange2: document.getElementById('vf-index-range-2'),
+            valPos2: document.getElementById('vf-val-pos-2'), valRange2: document.getElementById('vf-val-range-2'),
+            calcRes: document.getElementById('vf-calc-res'), low2: document.getElementById('vf-low-2'),
+            calcRes2: document.getElementById('vf-calc-res-2'), result: document.getElementById('vf-result')
+        },
+        toggles: {
+            array: document.getElementById('toggle-array'),
+            formula: document.getElementById('toggle-formula'),
+            code: document.getElementById('toggle-code'),
+            log: document.getElementById('toggle-log'),
+        },
+        components: {
+            array: document.getElementById('component-array-container'),
+            formula: document.getElementById('component-formula-container'),
+            code: document.getElementById('component-code-container'),
+            log: document.getElementById('component-log-container'),
+        }
+    };
+}
+
 
 let currentHighlight = null;
 let currentContextHighlight = null;
@@ -106,7 +113,9 @@ function _renderFormula(state) {
     const { formulaData } = state;
     const allVfSpans = Object.values(DOM.vf);
     if (!formulaData) {
-        allVfSpans.forEach(span => span.textContent = '?');
+        allVfSpans.forEach(span => {
+            if(span) span.textContent = '?';
+        });
         return;
     }
 
@@ -127,8 +136,10 @@ function _renderFormula(state) {
     DOM.vf.calcRes2.textContent = calcRes; DOM.vf.result.textContent = pos;
 
     allVfSpans.forEach(el => {
-        el.classList.add('updated');
-        setTimeout(() => el.classList.remove('updated'), 500);
+        if(el) {
+            el.classList.add('updated');
+            setTimeout(() => el.classList.remove('updated'), 500);
+        }
     });
 }
 
@@ -146,14 +157,36 @@ function _renderComponentVisibility(state) {
     DOM.components.array.classList.toggle('hidden', !DOM.toggles.array.checked);
     DOM.components.log.classList.toggle('hidden', !DOM.toggles.log.checked);
     
-    const showCode = DOM.toggles.code.checked && state.isRunning;
+    const showCode = DOM.toggles.code.checked && (state.isRunning || state.foundIndex > -1); // Show code even when complete
     DOM.components.code.classList.toggle('hidden', !showCode);
     
-    const showFormula = DOM.toggles.formula.checked && state.formulaData && state.isRunning;
+    const showFormula = DOM.toggles.formula.checked && state.formulaData && (state.isRunning || state.foundIndex > -1);
     DOM.components.formula.classList.toggle('hidden', !showFormula);
 }
 
+// Simple on-page alert function to avoid window.alert()
+function _showAlert(message) {
+    let alertBox = document.getElementById('custom-alert');
+    if (!alertBox) {
+        alertBox = document.createElement('div');
+        alertBox.id = 'custom-alert';
+        alertBox.className = 'fixed top-5 right-5 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded shadow-lg z-50';
+        document.body.appendChild(alertBox);
+    }
+    alertBox.innerHTML = `<strong>Error:</strong> ${message}`;
+    alertBox.classList.remove('hidden');
+    setTimeout(() => {
+        alertBox.classList.add('hidden');
+    }, 3000);
+}
+
+
 const UIManager = {
+    // *** NEW: Init function to be called by app.js ***
+    init() {
+        _cacheDOMElements();
+    },
+
     // Public method to render the entire UI from a state object
     render(state, historyLength) {
         _renderArray(state);
@@ -181,11 +214,19 @@ const UIManager = {
         DOM.explanationLog.innerHTML = '<span class="text-gray-400">Detailed steps will appear here...</span>';
         
         // Reset toggles to default
-        Object.values(DOM.toggles).forEach(toggle => toggle.checked = true);
+        Object.values(DOM.toggles).forEach(toggle => {
+            if(toggle) toggle.checked = true;
+        });
         
         // Use a dummy initial state to reset UI components
         const dummyState = { isRunning: false, foundIndex: -1, step: 'init_high', formulaData: null, log: [] };
         this.render(dummyState, 0);
+
+        // Ensure all components are visible/hidden correctly on reset
+        DOM.components.array.classList.remove('hidden');
+        DOM.components.log.classList.remove('hidden');
+        DOM.components.formula.classList.add('hidden');
+        DOM.components.code.classList.add('hidden');
     },
 
     // Attach event listeners to UI elements
@@ -202,12 +243,22 @@ const UIManager = {
                     randomNumbers.add(Math.floor(Math.random() * 200) + 1);
                 }
                 DOM.arrayInput.value = Array.from(randomNumbers).join(', ');
+            } else if (count > 100) {
+                _showAlert("Please enter a number less than or equal to 100.");
+            } else {
+                 _showAlert("Please enter a positive number.");
             }
         });
         Object.values(DOM.toggles).forEach(toggle => {
-            toggle.addEventListener('change', handlers.viewToggle);
+            if(toggle) {
+                toggle.addEventListener('change', handlers.viewToggle);
+            }
         });
-    }
+    },
+
+    // Expose the alert function
+    showAlert: _showAlert
 };
 
 export default UIManager;
+

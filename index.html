@@ -6,185 +6,8 @@
     <title>Interpolation Search Visualizer</title>
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* Use Inter font */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f4f7f6; /* A slightly softer gray */
-        }
-        /* Custom styles for array boxes */
-        .array-box {
-            width: 60px;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid #cbd5e1; /* gray-300 */
-            border-radius: 0.5rem; /* rounded-lg */
-            font-size: 1.125rem; /* text-lg */
-            font-weight: 600; /* font-semibold */
-            transition: all 0.3s ease-in-out;
-            position: relative; /* For labels */
-            background-color: white;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        }
-        /* ... existing array-box styles (low, high, probe, etc.) ... */
-        /* Labels for low, high, probe */
-        .array-box::before {
-            content: attr(data-label);
-            position: absolute;
-            top: -24px;
-            font-size: 0.875rem; /* text-sm */
-            font-weight: 600; /* font-semibold */
-            padding: 2px 6px;
-            border-radius: 0.375rem; /* rounded-md */
-            color: white;
-            opacity: 0;
-            transition: all 0.3s ease-in-out;
-            z-index: 10;
-        }
-        .array-box.low {
-            border-color: #3b82f6; /* blue-500 */
-            background-color: #dbeafe; /* blue-100 */
-        }
-        .array-box.low::before {
-            content: 'low';
-            background-color: #3b82f6; /* blue-500 */
-            opacity: 1;
-        }
-        .array-box.high {
-            border-color: #ef4444; /* red-500 */
-            background-color: #fee2e2; /* red-100 */
-        }
-        .array-box.high::before {
-            content: 'high';
-            background-color: #ef4444; /* red-500 */
-            opacity: 1;
-        }
-        .array-box.probe {
-            border-color: #22c55e; /* green-500 */
-            background-color: #dcfce7; /* green-100 */
-            transform: scale(1.1);
-            box-shadow: 0 10px 15px -3px rgba(34, 197, 94, 0.3);
-        }
-        .array-box.probe::before {
-            content: 'probe';
-            background-color: #22c55e; /* green-500 */
-            opacity: 1;
-        }
-        .array-box.found {
-            border-color: #f59e0b; /* amber-500 */
-            background-color: #fef3c7; /* amber-100 */
-            transform: scale(1.2);
-            animation: bounce 0.5s;
-        }
-        .array-box.found::before {
-            content: 'Found!';
-            background-color: #f59e0b; /* amber-500 */
-            opacity: 1;
-        }
-        .array-box.disabled {
-            background-color: #f9fafb; /* gray-50 */
-            color: #9ca3af; /* gray-400 */
-            opacity: 0.7;
-            box-shadow: none;
-        }
-        @keyframes bounce {
-            0%, 100% { transform: scale(1.2) translateY(0); }
-            50% { transform: scale(1.2) translateY(-10px); }
-        }
-
-        /* NEW: Styles for code highlighting */
-        #code-container pre code span {
-            display: block;
-            padding: 1px 0;
-            transition: all 0.2s ease-in-out;
-        }
-        .code-line-highlight {
-            background-color: #fef08a; /* yellow-200 */
-            color: #374151; /* gray-800 */
-            display: block;
-            border-left: 4px solid #f59e0b; /* amber-500 */
-            margin: 0 -1rem; /* Extend highlight to full width of padding */
-            padding: 0 1rem;
-            font-weight: bold;
-        }
-
-        /* NEW: Context highlight for loop */
-        .code-line-context {
-            background-color: #374151; /* gray-800 */
-        }
-
-        /* Style for formula logs */
-        .formula-log {
-            font-family: 'Courier New', Courier, monospace;
-            background-color: #f3f4f6; /* gray-100 */
-            padding: 0.75rem; /* p-3 */
-            border-radius: 0.5rem; /* rounded-lg */
-            border: 1px solid #e5e7eb; /* gray-200 */
-            margin-top: 0.5rem; /* mt-2 */
-            margin-bottom: 0.5rem; /* mb-2 */
-            font-size: 0.875rem; /* text-sm */
-            line-height: 1.5; /* leading-relaxed */
-            white-space: pre-wrap;
-            word-break: break-all;
-        }
-
-        /* Styles for new Visual Formula - More descriptive */
-        .formula-box {
-            background-color: #374151; /* gray-800 */
-            color: #d1d5db; /* gray-300 */
-            padding: 1.25rem; /* p-5 */
-            border-radius: 0.5rem; /* rounded-lg */
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 0.9rem; /* text-sm */
-            line-height: 1.6;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-        .formula-step {
-            display: grid;
-            grid-template-columns: 160px 1fr;
-            align-items: center;
-            gap: 1rem;
-            margin-top: 0.75rem; /* mt-3 */
-            padding-bottom: 0.75rem; /* pb-3 */
-            border-bottom: 1px dashed #4b5563; /* gray-600 */
-        }
-        .formula-step:last-child {
-            border-bottom: none;
-        }
-        .formula-label {
-            font-weight: bold;
-            color: #9ca3af; /* gray-400 */
-            text-align: right;
-        }
-        .formula-calc {
-            color: #f9fafb; /* gray-50 */
-            font-weight: bold;
-        }
-        .var-val {
-            background-color: #4b5563; /* gray-600 */
-            color: #e5e7eb; /* gray-200 */
-            padding: 2px 8px;
-            border-radius: 4px;
-            transition: all 0.2s ease-in-out;
-            display: inline-block;
-        }
-        .var-val.updated {
-            background-color: #34d399; /* emerald-400 */
-            color: #111827; /* gray-900 */
-            transform: scale(1.15);
-        }
-        .final-result {
-            background-color: #1f2937; /* gray-900 */
-            color: #34d399; /* emerald-400 */
-            padding: 0.75rem; /* p-3 */
-            border-radius: 0.375rem; /* rounded-md */
-            text-align: center;
-            font-size: 1.5rem; /* text-2xl */
-            margin-top: 1rem; /* mt-4 */
-        }
-    </style>
+    <!-- Link to your external stylesheet -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg-gray-100 text-gray-800 p-4 md:p-8">
 
@@ -231,7 +54,6 @@
                 <button id="start-button" class="w-full md:w-1/4 p-3 bg-blue-600 text-white font-bold rounded-lg shadow-md hover:bg-blue-700 transition-all duration-300 text-lg">
                     Start Visualization
                 </button>
-                <!-- NEW: Previous Step Button -->
                 <button id="prev-step-button" class="w-full md:w-1/4 p-3 bg-gray-500 text-white font-bold rounded-lg shadow-md hover:bg-gray-600 transition-all duration-300 text-lg hidden">
                     ⬅ Previous Step
                 </button>
@@ -243,7 +65,7 @@
                 </button>
             </div>
 
-            <!-- NEW: View Toggles -->
+            <!-- View Toggles -->
             <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg bg-white mb-6 shadow-sm">
                 <h3 class="text-lg font-semibold mb-3 text-center text-gray-700">View Options</h3>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -266,9 +88,9 @@
                 </div>
             </div>
 
-            <!-- NEW: Core Concept Box -->
+            <!-- Core Concept Box -->
             <div class="bg-blue-50 border-l-4 border-blue-400 text-blue-800 p-4 rounded-lg shadow-sm mb-8" role="alert">
-                <div class="flex">
+                 <div class="flex">
                     <div class="py-1"><svg class="fill-current h-6 w-6 text-blue-500 mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zM9 11v-2h2v2H9zm0 4v-2h2v2H9z"/></svg></div>
                     <div>
                         <p class="font-bold">How It "Thinks"</p>
@@ -277,58 +99,67 @@
                 </div>
             </div>
 
-            <!-- Visualization Area (ID ADDED) -->
-            <div id="component-array-container" class="bg-white rounded-xl shadow-xl p-6 md:p-8 mb-8">
-                <h2 class="text-2xl font-semibold mb-6 text-center">Array Visualization</h2>
-                <div id="array-container" class="w-full min-h-[150px] p-4 border-2 border-dashed border-gray-300 rounded-lg flex flex-wrap justify-center items-start gap-3 md:gap-4 pt-8">
-                    <span class="text-gray-400">Enter data and press 'Start' to see the visualization.</span>
-                </div>
-            </div>
+            <!-- 
+                *** THIS IS THE NEW DRAGGABLE CONTAINER ***
+                This wrapper is what SortableJS will target.
+            -->
+            <div id="main-content-container" class="flex flex-col gap-8">
             
-            <!-- NEW: Two-Column Layout for logs and formula -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                
-                <!-- Column 1: Formula + Code -->
-                <div>
-                    <!-- Visual Formula (Redesigned) (ID ADDED) -->
-                    <div id="component-formula-container" class="bg-white rounded-xl shadow-xl p-6 md:p-8 hidden">
-                        <h2 class="text-2xl font-semibold mb-4 text-center">Live Formula Breakdown</h2>
-                        <!-- **** THIS BLOCK IS UPDATED **** -->
-                        <div class="formula-box">
-                            <div class="text-center text-gray-400 mb-4">probe = low + (Index Range * Value's Position) / Value Range</div>
-                            
-                            <div class="formula-step">
-                                <span class="formula-label">Index Range</span>
-                                <span class="formula-calc">(high - low) = <span id="vf-high" class="var-val">?</span> - <span id="vf-low" class="var-val">?</span> = <span id="vf-index-range" class="var-val">?</span></span>
-                            </div>
-                            
-                            <div class="formula-step">
-                                <span class="formula-label">Value's Position</span>
-                                <span class="formula-calc">(value - array[low]) = <span id="vf-target" class="var-val">?</span> - <span id="vf-arr-low" class="var-val">?</span> = <span id="vf-val-pos" class="var-val">?</span></span>
-                            </div>
-
-                            <div class="formula-step">
-                                <span class="formula-label">Value Range</span>
-                                <span class="formula-calc">(array[high] - array[low]) = <span id="vf-arr-high" class="var-val">?</span> - <span id="vf-arr-low-2" class="var-val">?</span> = <span id="vf-val-range" class="var-val">?</span></span>
-                            </div>
-                            
-                            <div class="formula-step">
-                                <span class="formula-label">Calculation</span>
-                                <span class="formula-calc">(<span id="vf-index-range-2" class="var-val">?</span> * <span id="vf-val-pos-2" class="var-val">?</span>) / <span id="vf-val-range-2" class="var-val">?</span> = <span id="vf-calc-res" class="var-val">?</span></span>
-                            </div>
-                            
-                            <div class="final-result">
-                                probe = <span id="vf-low-2" class="var-val">?</span> + <span id="vf-calc-res-2" class="var-val">?</span> = <span id="vf-result" class="var-val">?</span>
-                            </div>
-                        </div>
-                        <!-- **** END OF UPDATED BLOCK **** -->
+                <!-- Item 1: Array Visualization (Handle Added) -->
+                <div id="component-array-container" class="bg-white rounded-xl shadow-xl p-6 md:p-8">
+                    <h2 class="text-2xl font-semibold mb-6 text-center flex items-center justify-center gap-2">
+                        <svg class="drag-handle cursor-grab h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                        </svg>
+                        Array Visualization
+                    </h2>
+                    <div id="array-container" class="w-full min-h-[150px] p-4 border-2 border-dashed border-gray-300 rounded-lg flex flex-wrap justify-center items-start gap-3 md:gap-4 pt-8">
+                        <span class="text-gray-400">Enter data and press 'Start' to see the visualization.</span>
                     </div>
+                </div>
+                
+                <!-- Item 2: Formula Breakdown (Handle Added) -->
+                <div id="component-formula-container" class="bg-white rounded-xl shadow-xl p-6 md:p-8 hidden">
+                    <h2 class="text-2xl font-semibold mb-4 text-center flex items-center justify-center gap-2">
+                        <svg class="drag-handle cursor-grab h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                        </svg>
+                        Live Formula Breakdown
+                    </h2>
+                    <div class="formula-box">
+                        <div class="text-center text-gray-400 mb-4">probe = low + (Index Range * Value's Position) / Value Range</div>
+                        <div class="formula-step">
+                            <span class="formula-label">Index Range</span>
+                            <span class="formula-calc">(high - low) = <span id="vf-high" class="var-val">?</span> - <span id="vf-low" class="var-val">?</span> = <span id="vf-index-range" class="var-val">?</span></span>
+                        </div>
+                        <div class="formula-step">
+                            <span class="formula-label">Value's Position</span>
+                            <span class="formula-calc">(value - array[low]) = <span id="vf-target" class="var-val">?</span> - <span id="vf-arr-low" class="var-val">?</span> = <span id="vf-val-pos" class="var-val">?</span></span>
+                        </div>
+                        <div class="formula-step">
+                            <span class="formula-label">Value Range</span>
+                            <span class="formula-calc">(array[high] - array[low]) = <span id="vf-arr-high" class="var-val">?</span> - <span id="vf-arr-low-2" class="var-val">?</span> = <span id="vf-val-range" class="var-val">?</span></span>
+                        </div>
+                        <div class="formula-step">
+                            <span class="formula-label">Calculation</span>
+                            <span class="formula-calc">(<span id="vf-index-range-2" class="var-val">?</span> * <span id="vf-val-pos-2" class="var-val">?</span>) / <span id="vf-val-range-2" class="var-val">?</span> = <span id="vf-calc-res" class="var-val">?</span></span>
+                        </div>
+                        <div class="final-result">
+                            probe = <span id="vf-low-2" class="var-val">?</span> + <span id="vf-calc-res-2" class="var-val">?</span> = <span id="vf-result" class="var-val">?</span>
+                        </div>
+                    </div>
+                </div>
 
-                    <!-- NEW: Code Container (ID ADDED) -->
-                    <div id="component-code-container" class="bg-white rounded-xl shadow-xl p-6 md:p-8 mt-8 hidden">
-                        <h2 class="text-2xl font-semibold mb-4 text-center">C++ Code</h2>
-                        <div class="bg-gray-900 text-gray-300 rounded-lg p-4 overflow-x-auto text-sm">
-                            <pre><code class="language-cpp">
+                <!-- Item 3: C++ Code (Handle Added) -->
+                <div id="component-code-container" class="bg-white rounded-xl shadow-xl p-6 md:p-8 hidden">
+                    <h2 class="text-2xl font-semibold mb-4 text-center flex items-center justify-center gap-2">
+                        <svg class="drag-handle cursor-grab h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                        </svg>
+                        C++ Code
+                    </h2>
+                    <div class="bg-gray-900 text-gray-300 rounded-lg p-4 overflow-x-auto text-sm">
+                        <pre><code class="language-cpp">
 <span id="code-line-1">int interpolationSearch(int array[], int n, int value) {</span>
 <span id="code-line-2">    int high = n - 1;</span>
 <span id="code-line-3">    int low = 0;</span>
@@ -356,14 +187,18 @@
 <span id="code-line-25">    </span>
 <span id="code-line-26">    return -1;</span>
 <span id="code-line-27">}</span>
-                            </code></pre>
-                        </div>
+                        </code></pre>
                     </div>
                 </div>
 
-                <!-- Column 2: Explanation Log (ID ADDED) -->
+                <!-- Item 4: Explanation Log (Handle Added) -->
                 <div id="component-log-container" class="bg-white rounded-xl shadow-xl p-6 md:p-8">
-                    <h2 class="text-2xl font-semibold mb-4 text-center">Step-by-Step Explanation</h2>
+                    <h2 class="text-2xl font-semibold mb-4 text-center flex items-center justify-center gap-2">
+                        <svg class="drag-handle cursor-grab h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                        </svg>
+                        Step-by-Step Explanation
+                    </h2>
                     <div id="explanation-log" class="w-full h-96 overflow-y-auto p-4 border border-gray-300 rounded-lg bg-gray-50 shadow-inner">
                         <span class="text-gray-400">Detailed steps will appear here...</span>
                     </div>
@@ -373,649 +208,11 @@
         </div>
     </div>
 
-    <script>
-        // DOM Elements
-        const arrayInput = document.getElementById('array-input');
-        const targetInput = document.getElementById('target-input');
-        const randomCountInput = document.getElementById('random-count');
-        const generateRandomButton = document.getElementById('generate-random');
-        const startButton = document.getElementById('start-button');
-        const prevStepButton = document.getElementById('prev-step-button'); // NEW
-        const nextStepButton = document.getElementById('next-step-button');
-        const resetButton = document.getElementById('reset-button');
-        const arrayContainer = document.getElementById('array-container');
-        const explanationLog = document.getElementById('explanation-log');
-        const visualFormulaContainer = document.getElementById('component-formula-container');
-        const codeContainer = document.getElementById('component-code-container');
+    <!-- *** Add SortableJS library *** -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
-        // Visual Formula DOM Elements
-        const vf = {
-            high: document.getElementById('vf-high'),
-            low: document.getElementById('vf-low'),
-            indexRange: document.getElementById('vf-index-range'),
-            target: document.getElementById('vf-target'),
-            arrLow: document.getElementById('vf-arr-low'),
-            valPos: document.getElementById('vf-val-pos'),
-            arrHigh: document.getElementById('vf-arr-high'),
-            arrLow2: document.getElementById('vf-arr-low-2'),
-            valRange: document.getElementById('vf-val-range'),
-            indexRange2: document.getElementById('vf-index-range-2'),
-            valPos2: document.getElementById('vf-val-pos-2'),
-            valRange2: document.getElementById('vf-val-range-2'),
-            calcRes: document.getElementById('vf-calc-res'),
-            low2: document.getElementById('vf-low-2'),
-            calcRes2: document.getElementById('vf-calc-res-2'),
-            result: document.getElementById('vf-result')
-        };
-        const allVfSpans = Object.values(vf);
-
-        // Global state object for manual stepping (UPDATED)
-        let vizState = {
-            isRunning: false,
-            step: 'init_high',
-            sortedArray: [],
-            target: 0,
-            low: 0,
-            high: 0,
-            pos: -1,
-            stepCount: 1,
-            // NEW properties for history
-            logHTML: '',
-            foundIndex: -1,
-            currentHighlightLineId: null,
-            isLoopContextActive: false,
-            formulaData: null
-        };
-        
-        let currentHighlight = null;
-        let currentContextHighlight = null;
-        let historyStack = []; // NEW: For previous step
-
-        // NEW: Helper to create a deep copy of the state
-        function deepCopy(obj) {
-            try {
-                return JSON.parse(JSON.stringify(obj));
-            } catch (e) {
-                console.error("Failed to deep copy state:", e);
-                return obj; // Fallback (not ideal)
-            }
-        }
-
-        // Helper: Flash effect for updated values
-        function flashUpdate(elements) {
-            const elementsToFlash = Array.isArray(elements) ? elements : [elements];
-            elementsToFlash.forEach(el => {
-                if (el) {
-                    el.classList.add('updated');
-                    setTimeout(() => {
-                        el.classList.remove('updated');
-                    }, 500);
-                }
-            });
-        }
-
-        // --- REFACTORED RENDER FUNCTIONS (BUG FIX) ---
-
-        // NEW: "Pure" DOM render functions. These DO NOT touch vizState.
-        function _renderHighlight(lineId) {
-            if (currentHighlight) {
-                currentHighlight.classList.remove('code-line-highlight');
-            }
-            if (lineId) {
-                const line = document.getElementById(lineId);
-                if (line) {
-                    line.classList.add('code-line-highlight');
-                    currentHighlight = line;
-                }
-            } else {
-                currentHighlight = null;
-            }
-        }
-
-        function _renderContextHighlight(lineId, active) {
-            if (currentContextHighlight) {
-                currentContextHighlight.classList.remove('code-line-context');
-                currentContextHighlight = null;
-            }
-            if (active && lineId) {
-                const line = document.getElementById(lineId);
-                if (line) {
-                    line.classList.add('code-line-context');
-                    currentContextHighlight = line;
-                }
-            }
-        }
-        
-        function _renderLog(html) {
-            explanationLog.innerHTML = html;
-            explanationLog.scrollTop = explanationLog.scrollHeight;
-        }
-
-        function _resetFormula() {
-            allVfSpans.forEach(span => {
-                if(span) span.textContent = '?';
-            });
-            // Only hide if the toggle is not forcing it to be open
-            if (!vizState.isRunning || !document.getElementById('toggle-formula').checked) {
-                 visualFormulaContainer.classList.add('hidden');
-            }
-        }
-
-        function _renderFormula(formulaData) {
-            if (!formulaData) {
-                _resetFormula();
-                return;
-            }
-
-            const { lowVal, highVal, targetVal, arrLowVal, arrHighVal } = formulaData;
-            
-            const indexRange = (highVal - lowVal);
-            const valPos = (targetVal - arrLowVal);
-            const valRange = (arrHighVal - arrLowVal);
-            
-            let calcRes = 0;
-            if (valRange !== 0) {
-                calcRes = Math.floor((indexRange * valPos) / valRange);
-            }
-
-            const pos = lowVal + calcRes;
-
-            vf.high.textContent = highVal;
-            vf.low.textContent = lowVal;
-            vf.indexRange.textContent = indexRange;
-            vf.target.textContent = targetVal;
-            vf.arrLow.textContent = arrLowVal;
-            vf.valPos.textContent = valPos;
-            vf.arrHigh.textContent = arrHighVal;
-            vf.arrLow2.textContent = arrLowVal;
-            vf.valRange.textContent = valRange;
-            vf.indexRange2.textContent = indexRange;
-            vf.valPos2.textContent = valPos;
-            vf.valRange2.textContent = valRange;
-            vf.calcRes.textContent = calcRes;
-            vf.low2.textContent = lowVal;
-            vf.calcRes2.textContent = calcRes;
-            vf.result.textContent = pos;
-
-            if (document.getElementById('toggle-formula').checked) {
-                flashUpdate(allVfSpans);
-                visualFormulaContainer.classList.remove('hidden');
-            }
-        }
-
-        // --- End of "Pure" Render Functions ---
-
-
-        // Helper: Update Visual Formula (UPDATED to save state and call pure render)
-        function updateVisualFormula(lowVal, highVal, targetVal, arrLowVal, arrHighVal) {
-            // NEW: Save data to state
-            vizState.formulaData = { lowVal, highVal, targetVal, arrLowVal, arrHighVal };
-            _renderFormula(vizState.formulaData); // Call pure render
-        }
-
-        // Helper: Reset Visual Formula (UPDATED to save state and call pure render)
-        function resetVisualFormula() {
-            vizState.formulaData = null; // NEW: Save state
-            _resetFormula(); // Call pure render
-        }
-
-        // NEW: Helper: Highlight a line of code (UPDATED to save state and call pure render)
-        function highlightCode(lineId) {
-            vizState.currentHighlightLineId = lineId; // NEW: Save state
-            _renderHighlight(lineId); // Call pure render
-        }
-
-        // NEW: Helper: Highlight a line of code context (UPDATED to save state and call pure render)
-        function setContextHighlight(lineId, active) {
-            vizState.isLoopContextActive = active; // NEW: Save state
-            _renderContextHighlight(lineId, active); // Call pure render
-        }
-
-        // Helper: Log a step (UPDATED to save state and call pure render)
-        function logStep(message, isFormula = false) {
-            let logEntryHtml = '';
-            if (isFormula) {
-                logEntryHtml = `<div class="formula-log">${message}</div>`;
-            } else {
-                logEntryHtml = `<div class="p-2 border-b border-gray-200">${message}</div>`;
-            }
-            vizState.logHTML += logEntryHtml; // Append to state
-            _renderLog(vizState.logHTML); // Call pure render
-        }
-
-        // Helper: Render the array (This was already pure, no changes needed)
-        function renderArray(arr, low = -1, high = -1, probe = -1, found = -1) {
-            arrayContainer.innerHTML = '';
-            arr.forEach((value, index) => {
-                const elementWrapper = document.createElement('div');
-                elementWrapper.className = 'flex flex-col items-center';
-
-                const box = document.createElement('div');
-                box.className = 'array-box';
-                box.textContent = value;
-                if (index === low) box.classList.add('low');
-                if (index === high) box.classList.add('high');
-                if (index === probe) box.classList.add('probe');
-                if (index === found) box.classList.add('found');
-                if ((low !== -1 && index < low) || (high !== -1 && index > high)) {
-                    box.classList.add('disabled');
-                }
-                
-                elementWrapper.appendChild(box);
-
-                const indexLabel = document.createElement('div');
-                indexLabel.className = 'text-sm font-semibold text-gray-500 mt-1';
-                indexLabel.textContent = index;
-                elementWrapper.appendChild(indexLabel);
-
-                arrayContainer.appendChild(elementWrapper);
-            });
-        }
-
-        // Manages button visibility (UPDATED for prev button)
-        function setButtonState(state) {
-            if (state === 'idle') {
-                startButton.classList.remove('hidden');
-                nextStepButton.classList.add('hidden');
-                prevStepButton.classList.add('hidden'); // NEW
-                resetButton.classList.add('hidden');
-            } else if (state === 'active') {
-                startButton.classList.add('hidden');
-                nextStepButton.classList.remove('hidden');
-                resetButton.classList.remove('hidden');
-                // NEW: Show/hide prev button
-                if (historyStack.length > 1) {
-                    prevStepButton.classList.remove('hidden');
-                } else {
-                    prevStepButton.classList.add('hidden');
-                }
-            } else if (state === 'complete') {
-                startButton.classList.add('hidden');
-                nextStepButton.classList.add('hidden');
-                prevStepButton.classList.add('hidden'); // NEW
-                resetButton.classList.remove('hidden'); // Show reset
-            }
-        }
-
-        // Main setup function (UPDATED for history)
-        function initializeSearch() {
-            // 1. Get and parse inputs
-            const rawArray = arrayInput.value.split(',')
-                                .map(s => s.trim())
-                                .filter(s => s !== '')
-                                .map(Number)
-                                .filter(isFinite);
-            const target = Number(targetInput.value);
-
-            if (rawArray.length === 0) {
-                logStep("<strong>Error:</strong> Please enter a valid array of numbers.");
-                return;
-            }
-            if (isNaN(target)) {
-                logStep("<strong>Error:</strong> Please enter a valid target number.");
-                return;
-            }
-
-            // 2. Clear logs and sort the array
-            explanationLog.innerHTML = ''; // Clear log first
-            vizState.logHTML = ''; // NEW: Clear log state
-            resetVisualFormula(); // This now clears state AND renders
-            logStep(`<strong>Starting search for ${target}</strong> in array: [${rawArray.join(', ')}]`);
-            logStep(`Interpolation search requires a <strong>sorted array</strong>. Sorting...`);
-            
-            const sorted = [...new Set(rawArray)].sort((a, b) => a - b);
-            if (sorted.length < rawArray.length) {
-                logStep(`Note: Duplicates were removed for a cleaner search.`);
-            }
-            renderArray(sorted);
-            logStep(`Sorted array: [<strong>${sorted.join(', ')}</strong>]`);
-
-            // 3. Initialize search state (UPDATED)
-            vizState = {
-                isRunning: true,
-                step: 'init_high',
-                sortedArray: sorted,
-                target: target,
-                low: 0,
-                high: sorted.length - 1,
-                pos: -1,
-                stepCount: 1,
-                logHTML: '', // Will be set after all logs
-                foundIndex: -1,
-                currentHighlightLineId: null,
-                isLoopContextActive: false,
-                formulaData: null
-            };
-            
-            // 4. Set UI to active
-            setButtonState('active');
-            
-            // Only show components if their toggles are checked
-            if (document.getElementById('toggle-code').checked) {
-                codeContainer.classList.remove('hidden');
-            }
-            if (document.getElementById('toggle-formula').checked) {
-                // Formula will be shown by updateVisualFormula when needed
-            }
-
-            logStep("Click 'Next Step' to begin the search by initializing variables.");
-            
-            // 5. NEW: Save initial state to history
-            // vizState.logHTML = explanationLog.innerHTML; // No longer needed, logStep does this
-            historyStack = []; // Clear history
-            historyStack.push(deepCopy(vizState)); // Push the *initial* state (S0)
-            setButtonState('active'); // Call again to set prev button (it will be hidden)
-        }
-
-        // Function to finish the search (UPDATED to save state)
-        function finishVisualization(found, foundIndex = -1, reason = "") {
-            vizState.isRunning = false;
-            vizState.foundIndex = foundIndex; // NEW: Save found index
-            setButtonState('complete');
-            setContextHighlight(null, false); // This calls pure render
-
-            if (found) {
-                logStep(`<strong>Found!</strong> arr[${foundIndex}] (${vizState.sortedArray[foundIndex]}) == target (${vizState.target})`);
-                renderArray(vizState.sortedArray, -1, -1, -1, foundIndex);
-            } else {
-                logStep(`<h3 class="text-lg font-bold mt-4">Search Finished</h3>`);
-                logStep(reason);
-                logStep(`<strong>Target ${vizState.target} not found in the array.</strong>`);
-                renderArray(vizState.sortedArray, -1, -1, -1, -1);
-            }
-            // Log is saved by logStep
-        }
-        
-        // This function runs ONE part of the step (UPDATED for history)
-        function performNextStep() {
-            if (!vizState.isRunning) return;
-
-            // State is mutated directly by the switch statement.
-            // Helper functions (logStep, highlightCode, etc.) will update vizState.
-            const { sortedArray, target } = vizState;
-            let { low, high, pos } = vizState; 
-
-            switch(vizState.step) {
-                case 'init_high':
-                    highlightCode('code-line-2');
-                    logStep(`Setting <strong>high = n - 1 ➔ ${vizState.high}</strong>`);
-                    renderArray(sortedArray, -1, vizState.high, -1); // Render with no probe
-                    vizState.step = 'init_low';
-                    break;
-
-                case 'init_low':
-                    highlightCode('code-line-3');
-                    logStep(`Setting <strong>low ➔ ${vizState.low}</strong>`);
-                    renderArray(sortedArray, vizState.low, vizState.high, -1); // Render with no probe
-                    vizState.step = 'check_while';
-                    break;
-
-                case 'check_while':
-                    logStep(`<h3 class="text-lg font-bold mt-4">Step ${vizState.stepCount} (Check Loop)</h3>`);
-                    highlightCode('code-line-5');
-                    setContextHighlight('code-line-5', true);
-
-                    low = vizState.low;
-                    high = vizState.high;
-
-                    if (sortedArray.length === 0) {
-                         vizState.step = 'finish_fail';
-                         finishVisualization(false, -1, "Array is empty.");
-                         highlightCode('code-line-26');
-                         break;
-                    }
-                    
-                    if (low > high) {
-                        vizState.step = 'finish_fail';
-                        finishVisualization(false, -1, `Loop condition failed: low (${low}) > high (${high})`);
-                        highlightCode('code-line-26');
-                        break;
-                    }
-
-                    const conditionLowHigh = low <= high;
-                    const conditionMinBound = target >= sortedArray[low];
-                    const conditionMaxBound = target <= sortedArray[high];
-
-                    logStep(`Checking while(target >= arr[low] && target <= arr[high] && low <= high)`);
-                    logStep(`- target >= arr[low]: (${target} >= ${sortedArray[low]}) ➔ <strong>${conditionMinBound}</strong>`);
-                    logStep(`- target <= arr[high]: (${target} <= ${sortedArray[high]}) ➔ <strong>${conditionMaxBound}</strong>`);
-                    logStep(`- low <= high: (${low} <= ${high}) ➔ <strong>${conditionLowHigh}</strong>`);
-
-                    if (conditionMinBound && conditionMaxBound && conditionLowHigh) {
-                        logStep(`➔ Conditions <strong>TRUE</strong>. Entering loop...`);
-                        vizState.step = 'check_low_high_equal';
-                    } else {
-                        logStep(`➔ Conditions <strong>FALSE</strong>. Exiting loop...`);
-                        vizState.step = 'finish_fail';
-                        finishVisualization(false, -1, "Loop conditions failed.");
-                        highlightCode('code-line-26');
-                    }
-                    break;
-
-                case 'check_low_high_equal':
-                    highlightCode('code-line-6');
-                    logStep(`Checking if low == high... (${vizState.low} == ${vizState.high})`);
-                    if (vizState.low === vizState.high) {
-                        logStep(`➔ <strong>TRUE</strong>. Checking if this one element is the target.`);
-                        highlightCode('code-line-7');
-                        logStep(`Checking if arr[low] == value... (${sortedArray[vizState.low]} == ${target})`);
-                        if (sortedArray[vizState.low] === target) {
-                            logStep(`➔ <strong>TRUE</strong>. Value found.`);
-                            vizState.step = 'finish_found';
-                            finishVisualization(true, vizState.low);
-                            highlightCode('code-line-8');
-                        } else {
-                            logStep(`➔ <strong>FALSE</strong>. Value not found. Breaking loop.`);
-                            vizState.step = 'finish_fail_break';
-                            finishVisualization(false, -1, `low == high, but arr[low] != target.`);
-                            highlightCode('code-line-10');
-                        }
-                    } else {
-                        logStep(`➔ <strong>FALSE</strong>. Proceeding to calculate probe.`);
-                        vizState.step = 'calculate_probe';
-                    }
-                    break;
-                
-                case 'calculate_probe':
-                    logStep(`<strong>Calculating probe position...</strong>`);
-                    highlightCode('code-line-13');
-                    
-                    low = vizState.low;
-                    high = vizState.high;
-                    
-                    // This function now saves data to vizState
-                    updateVisualFormula(low, high, target, sortedArray[low], sortedArray[high]);
-
-                    let valPos = (target - sortedArray[low]);
-                    let valRange = (sortedArray[high] - sortedArray[low]);
-                    let indexRange = (high - low);
-                    
-                    if (valRange === 0) {
-                        pos = low;
-                    } else {
-                        pos = low + Math.floor((indexRange * valPos) / valRange);
-                    }
-                    
-                    if (pos < low || pos > high) {
-                         logStep(`<span class="text-red-600 font-bold">Calculated position <strong>${pos}</strong> is out of bounds [${low}, ${high}].</span>`);
-                         logStep(`This can happen with non-uniformly distributed data. Search terminating.`);
-                         vizState.step = 'finish_fail';
-                         finishVisualization(false, -1, "Calculated probe was out of bounds.");
-                         highlightCode('code-line-26');
-                         break;
-                    }
-                    
-                    vizState.pos = pos;
-                    logStep(`Probing index <strong>${pos}</strong> (value: <strong class="text-green-600">${sortedArray[pos]}</strong>)`);
-                    renderArray(sortedArray, low, high, pos);
-                    
-                    vizState.step = 'check_and_update_probe';
-                    break;
-                
-                case 'check_and_update_probe':
-                    pos = vizState.pos;
-                    logStep(`<h3 class="text-lg font-bold mt-4">Step ${vizState.stepCount} (Compare & Update)</h3>`);
-                    
-                    highlightCode('code-line-15');
-                    logStep(`Checking if arr[probe] == value... (${sortedArray[pos]} == ${target})`);
-                    if (sortedArray[pos] === target) {
-                        logStep(`➔ <strong>TRUE</strong>. Value found.`);
-                        vizState.step = 'finish_found';
-                        finishVisualization(true, pos);
-                        highlightCode('code-line-16');
-                    }
-                    else {
-                        highlightCode('code-line-18');
-                        logStep(`Checking if arr[probe] > value... (${sortedArray[pos]} > ${target})`);
-                        if (sortedArray[pos] > target) {
-                            logStep(`➔ <strong>TRUE</strong>. Value is too high.`);
-                            vizState.high = pos - 1;
-                            vizState.pos = -1; // NEW: Clear probe state
-                            logStep(`Setting <strong>high ➔ ${vizState.high}</strong>`);
-                            highlightCode('code-line-19');
-                            renderArray(sortedArray, vizState.low, vizState.high, -1); // Render with no probe
-                            vizState.step = 'check_while';
-                            vizState.stepCount++;
-                        }
-                        else {
-                            highlightCode('code-line-21');
-                            logStep(`➔ <strong>FALSE</strong>. Value must be too low.`);
-                            vizState.low = pos + 1;
-                            vizState.pos = -1; // NEW: Clear probe state
-                            logStep(`Setting <strong>low ➔ ${vizState.low}</strong>`);
-                            highlightCode('code-line-22');
-                            renderArray(sortedArray, vizState.low, vizState.high, -1); // Render with no probe
-                            vizState.step = 'check_while';
-                            vizState.stepCount++;
-                        }
-                    }
-                    break;
-
-                case 'finish_found':
-                case 'finish_fail':
-                case 'finish_fail_break':
-                    break;
-            }
-            
-            // NEW: After the step is complete, push the new state to history
-            // But only if the search isn't over
-            if (vizState.isRunning) {
-                historyStack.push(deepCopy(vizState));
-            }
-            setButtonState('active'); // Update button states
-        }
-
-        // NEW: Function to restore the entire UI from a given state object (BUG FIX)
-        function renderAllFromState(state) {
-            // 1. Restore log (Uses pure render)
-            _renderLog(state.logHTML);
-            
-            // 2. Restore array (Already pure)
-            renderArray(state.sortedArray, state.low, state.high, state.pos, state.foundIndex);
-            
-            // 3. Restore code highlights (Uses pure render)
-            _renderHighlight(state.currentHighlightLineId); 
-            _renderContextHighlight('code-line-5', state.isLoopContextActive);
-            
-            // 4. Restore formula box (Uses pure render)
-            _renderFormula(state.formulaData); // This one function handles both update and reset
-        }
-
-        // NEW: Function to go back one step
-        function performPreviousStep() {
-            if (historyStack.length <= 1) {
-                console.log("At the beginning of history.");
-                return; // Can't go back any further
-            }
-            
-            historyStack.pop(); // Pop the *current* state
-            vizState = deepCopy(historyStack[historyStack.length - 1]); // Restore the *previous* state
-            
-            // Now, re-render everything from this restored state
-            renderAllFromState(vizState);
-            
-            setButtonState('active'); // Update button visibility
-        }
-
-
-        // Full reset of the app (UPDATED)
-        function fullReset() {
-            vizState.isRunning = false;
-            vizState.step = 'init_high';
-            vizState.stepCount = 1;
-            arrayInput.value = '';
-            targetInput.value = '';
-            randomCountInput.value = '';
-            arrayContainer.innerHTML = '<span class="text-gray-400">Enter data and press \'Start\' to see the visualization.</span>';
-            explanationLog.innerHTML = '<span class="text-gray-400">Detailed steps will appear here...</span>';
-            resetVisualFormula();
-            setButtonState('idle');
-            codeContainer.classList.add('hidden');
-            highlightCode(null);
-            setContextHighlight(null, false);
-            historyStack = []; // NEW: Clear history
-            prevStepButton.classList.add('hidden'); // NEW
-
-            // Reset toggles to default
-            document.getElementById('toggle-array').checked = true;
-            document.getElementById('toggle-formula').checked = true;
-            document.getElementById('toggle-code').checked = true;
-            document.getElementById('toggle-log').checked = true;
-            document.getElementById('component-array-container').classList.remove('hidden');
-            document.getElementById('component-formula-container').classList.add('hidden');
-            document.getElementById('component-code-container').classList.add('hidden');
-            document.getElementById('component-log-container').classList.remove('hidden');
-        }
-
-        // Generate Random Array
-        function generateRandom() {
-            const count = Number(randomCountInput.value);
-            if (count <= 0 || count > 100) {
-                explanationLog.innerHTML = ''; // Clear log
-                logStep("<strong>Error:</strong> Please enter a number between 1 and 100 for random generation.");
-                return;
-            }
-            
-            let randomNumbers = new Set();
-            while(randomNumbers.size < count) {
-                randomNumbers.add(Math.floor(Math.random() * 200) + 1);
-            }
-            
-            arrayInput.value = Array.from(randomNumbers).join(', ');
-        }
-
-        // Event Listeners
-        startButton.addEventListener('click', initializeSearch);
-        prevStepButton.addEventListener('click', performPreviousStep); // NEW listener
-        nextStepButton.addEventListener('click', performNextStep);
-        resetButton.addEventListener('click', fullReset);
-        generateRandomButton.addEventListener('click', generateRandom);
-
-        // --- NEW: View Toggles Listeners ---
-        document.getElementById('toggle-array').addEventListener('change', (e) => {
-            document.getElementById('component-array-container').classList.toggle('hidden', !e.target.checked);
-        });
-        document.getElementById('toggle-formula').addEventListener('change', (e) => {
-            // This one is special because it's controlled by the viz state
-            if (e.target.checked && vizState.isRunning && vizState.formulaData) {
-                visualFormulaContainer.classList.remove('hidden');
-            } else if (!e.target.checked) {
-                visualFormulaContainer.classList.add('hidden');
-            }
-        });
-        document.getElementById('toggle-code').addEventListener('change', (e) => {
-             if (e.target.checked && vizState.isRunning) {
-                codeContainer.classList.remove('hidden');
-            } else if (!e.target.checked) {
-                codeContainer.classList.add('hidden');
-            }
-        });
-        document.getElementById('toggle-log').addEventListener('change', (e) => {
-            document.getElementById('component-log-container').classList.toggle('hidden', !e.target.checked);
-        });
-        // --- End of View Toggles Listeners ---
-
-    </script>
+    <!-- *** LINK TO app.js AS A MODULE *** -->
+    <script type="module" src="js/app.js"></script>
 </body>
 </html>
 
