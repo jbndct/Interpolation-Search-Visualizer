@@ -49,4 +49,4 @@ This project is built with vanilla web technologies, keeping it simple and acces
     ```bash
     cd Interpolation-Search-Visualizer
     ```
-3.  Open the `interpolation_search_visualizer.html` file in your favorite web browser.
+3.  Open the `index.html` file in your favorite web browser.
