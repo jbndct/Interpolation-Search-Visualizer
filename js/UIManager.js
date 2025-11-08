@@ -286,6 +286,6 @@ const UIManager = {
     },
 
     showAlert: _showAlert
-};
-
+}; 
+// End of UIManager.js
 export default UIManager;
