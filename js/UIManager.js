@@ -283,6 +283,44 @@ const UIManager = {
                 toggle.addEventListener('change', handlers.viewToggle);
             }
         });
+
+        // --- NEW: Keyboard Shortcuts ---
+        document.addEventListener('keydown', (event) => {
+            // Don't trigger shortcuts if user is typing in an input
+            const targetTag = event.target.tagName.toLowerCase();
+            if (targetTag === 'input') {
+                return;
+            }
+
+            switch (event.key) {
+                case 'Enter':
+                    event.preventDefault(); // Prevent default form submission
+                    // Check for Start button first
+                    if (!DOM.startButton.classList.contains('hidden')) {
+                        handlers.start();
+                    } 
+                    // Then check for Next button
+                    else if (!DOM.nextStepButton.classList.contains('hidden') && !DOM.nextStepButton.disabled) {
+                        handlers.next();
+                    }
+                    break;
+                case 'Backspace':
+                    // Check for Previous button
+                    if (!DOM.prevStepButton.classList.contains('hidden') && !DOM.prevStepButton.disabled) {
+                        event.preventDefault(); // Prevent browser back navigation
+                        handlers.prev();
+                    }
+                    break;
+                case 'Escape': // Using 'Escape' for Reset
+                    // Check for Reset button
+                    if (!DOM.resetButton.classList.contains('hidden') && !DOM.resetButton.disabled) {
+                        event.preventDefault();
+                        handlers.reset();
+                    }
+                    break;
+            }
+        });
+        // --- End of New Code ---
     },
 
     showAlert: _showAlert
