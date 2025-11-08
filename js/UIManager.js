@@ -1,15 +1,12 @@
 // js/UIManager.js
 
 /**
- * Manages all DOM interactions for the visualizer.
- * It reads a state object and updates the UI accordingly.
+ * Manages all DOM interactions.
  */
 
-// *** MODIFIED: Initialize as an empty object. ***
-// We will fill this object *after* the DOM has loaded.
 let DOM = {};
 
-// *** NEW: Function to cache all DOM elements ***
+// Cache all DOM elements
 function _cacheDOMElements() {
     DOM = {
         arrayInput: document.getElementById('array-input'),
@@ -56,6 +53,12 @@ let currentContextHighlight = null;
 function _renderArray(state) {
     const { sortedArray, low, high, pos, foundIndex } = state;
     DOM.arrayContainer.innerHTML = '';
+    
+    if (sortedArray.length === 0) {
+         DOM.arrayContainer.innerHTML = '<span class="text-gray-400">Enter data and press \'Start\' to see the visualization.</span>';
+         return;
+    }
+    
     sortedArray.forEach((value, index) => {
         const elementWrapper = document.createElement('div');
         elementWrapper.className = 'flex flex-col items-center';
@@ -81,6 +84,11 @@ function _renderArray(state) {
 }
 
 function _renderLog(state) {
+    if (state.log.length === 0) {
+        DOM.explanationLog.innerHTML = '<span class="text-gray-400">Detailed steps will appear here...</span>';
+        return;
+    }
+    
     DOM.explanationLog.innerHTML = state.log.map(entry => 
         entry.isFormula 
             ? `<div class="formula-log">${entry.message}</div>`
@@ -143,28 +151,30 @@ function _renderFormula(state) {
     });
 }
 
-function _renderButtonState(state, historyLength) {
-    const isIdle = !state.isRunning && state.foundIndex === -1 && state.step === 'init_high';
-    const isComplete = !state.isRunning && !isIdle;
+function _renderButtonState(state, isFinished, isAtStart) {
+    const isIdle = isFinished && isAtStart && state.log.length === 0;
 
     DOM.startButton.classList.toggle('hidden', !isIdle);
-    DOM.nextStepButton.classList.toggle('hidden', isIdle || isComplete);
-    DOM.prevStepButton.classList.toggle('hidden', isIdle || isComplete || historyLength <= 1);
+    
+    DOM.nextStepButton.classList.toggle('hidden', isIdle);
+    DOM.prevStepButton.classList.toggle('hidden', isIdle);
     DOM.resetButton.classList.toggle('hidden', isIdle);
+
+    DOM.nextStepButton.disabled = isFinished;
+    DOM.prevStepButton.disabled = isAtStart;
 }
 
 function _renderComponentVisibility(state) {
     DOM.components.array.classList.toggle('hidden', !DOM.toggles.array.checked);
     DOM.components.log.classList.toggle('hidden', !DOM.toggles.log.checked);
     
-    const showCode = DOM.toggles.code.checked && (state.isRunning || state.foundIndex > -1); // Show code even when complete
+    const showCode = DOM.toggles.code.checked && state.log.length > 0;
     DOM.components.code.classList.toggle('hidden', !showCode);
     
-    const showFormula = DOM.toggles.formula.checked && state.formulaData && (state.isRunning || state.foundIndex > -1);
+    const showFormula = DOM.toggles.formula.checked && state.formulaData;
     DOM.components.formula.classList.toggle('hidden', !showFormula);
 }
 
-// Simple on-page alert function to avoid window.alert()
 function _showAlert(message) {
     let alertBox = document.getElementById('custom-alert');
     if (!alertBox) {
@@ -182,59 +192,55 @@ function _showAlert(message) {
 
 
 const UIManager = {
-    // *** NEW: Init function to be called by app.js ***
     init() {
         _cacheDOMElements();
     },
 
-    // Public method to render the entire UI from a state object
-    render(state, historyLength) {
+    render(state, isFinished, isAtStart) {
         _renderArray(state);
         _renderLog(state);
         _renderCode(state);
         _renderFormula(state);
-        _renderButtonState(state, historyLength);
+        _renderButtonState(state, isFinished, isAtStart);
         _renderComponentVisibility(state);
     },
 
-    // Get user inputs from the DOM
     getInputs() {
         const rawArray = DOM.arrayInput.value.split(',')
             .map(s => s.trim()).filter(s => s !== '').map(Number).filter(isFinite);
         const target = Number(DOM.targetInput.value);
-        return { rawArray, target };
+        const rawTarget = DOM.targetInput.value.trim();
+        return { rawArray, target, rawTarget };
     },
 
-    // Reset the UI to its initial state
-    fullReset() {
+    fullReset(idleState) {
         DOM.arrayInput.value = '';
         DOM.targetInput.value = '';
         DOM.randomCountInput.value = '';
-        DOM.arrayContainer.innerHTML = '<span class="text-gray-400">Enter data and press \'Start\' to see the visualization.</span>';
-        DOM.explanationLog.innerHTML = '<span class="text-gray-400">Detailed steps will appear here...</span>';
         
-        // Reset toggles to default
         Object.values(DOM.toggles).forEach(toggle => {
             if(toggle) toggle.checked = true;
         });
         
-        // Use a dummy initial state to reset UI components
-        const dummyState = { isRunning: false, foundIndex: -1, step: 'init_high', formulaData: null, log: [] };
-        this.render(dummyState, 0);
-
-        // Ensure all components are visible/hidden correctly on reset
-        DOM.components.array.classList.remove('hidden');
-        DOM.components.log.classList.remove('hidden');
-        DOM.components.formula.classList.add('hidden');
-        DOM.components.code.classList.add('hidden');
+        this.render(idleState, true, true);
     },
 
-    // Attach event listeners to UI elements
+    // --- FIX: New function to show loading state ---
+    setControlsEnabled(isEnabled) {
+        DOM.nextStepButton.disabled = !isEnabled;
+        DOM.prevStepButton.disabled = !isEnabled;
+        DOM.resetButton.disabled = !isEnabled;
+        
+        // Show loading text
+        DOM.nextStepButton.textContent = isEnabled ? "Next Step ➔" : "Loading...";
+    },
+
     bindEventListeners(handlers) {
         DOM.startButton.addEventListener('click', handlers.start);
         DOM.prevStepButton.addEventListener('click', handlers.prev);
         DOM.nextStepButton.addEventListener('click', handlers.next);
         DOM.resetButton.addEventListener('click', handlers.reset);
+        
         DOM.generateRandomButton.addEventListener('click', () => {
              const count = Number(DOM.randomCountInput.value);
             if (count > 0 && count <= 100) {
@@ -249,6 +255,7 @@ const UIManager = {
                  _showAlert("Please enter a positive number.");
             }
         });
+        
         Object.values(DOM.toggles).forEach(toggle => {
             if(toggle) {
                 toggle.addEventListener('change', handlers.viewToggle);
@@ -256,9 +263,7 @@ const UIManager = {
         });
     },
 
-    // Expose the alert function
     showAlert: _showAlert
 };
 
 export default UIManager;
-

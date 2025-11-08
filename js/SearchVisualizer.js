@@ -1,14 +1,33 @@
 // js/SearchVisualizer.js
 
-/**
- * Manages the state and logic for the Interpolation Search algorithm.
- * It is completely unaware of the DOM.
- */
 class SearchVisualizer {
     constructor(initialArray, target) {
         this.history = [];
+        this.currentStateIndex = 0;
+        
+        // Create and save the very first "initial" state
         this.state = this._createInitialState(initialArray, target);
         this.history.push(this._deepCopy(this.state));
+        
+        // --- FIX: The heavy loop is REMOVED from the constructor ---
+        // It now lives in `precomputeHistory`
+    }
+
+    // --- FIX: New async method to compute history ---
+    async precomputeHistory() {
+        let iterations = 0;
+        // Run the algorithm to pre-populate history
+        while (this.state.isRunning) {
+            this._performStep(); // This mutates this.state
+            this.history.push(this._deepCopy(this.state));
+            
+            iterations++;
+            // --- FIX: Yield to the main thread every 100 steps ---
+            // This prevents the browser from freezing
+            if (iterations % 100 === 0) {
+                await new Promise(resolve => setTimeout(resolve, 0));
+            }
+        }
     }
 
     _createInitialState(rawArray, target) {
@@ -16,19 +35,14 @@ class SearchVisualizer {
         const hasDuplicates = sortedArray.length < rawArray.length;
 
         const initialState = {
-            // Static properties
             rawArray: rawArray,
             sortedArray: sortedArray,
             target: target,
             hasDuplicates: hasDuplicates,
-
-            // Dynamic properties
             low: 0,
             high: sortedArray.length - 1,
-            pos: -1, // probe position
+            pos: -1,
             foundIndex: -1,
-            
-            // Meta properties
             isRunning: true,
             step: 'init_high',
             stepCount: 1,
@@ -50,33 +64,28 @@ class SearchVisualizer {
     }
 
     getState() {
-        return this._deepCopy(this.state);
+        return this._deepCopy(this.history[this.currentStateIndex]);
     }
 
     isFinished() {
-        return !this.state.isRunning;
+        // We are "finished" if we're at the last frame of the history
+        return this.currentStateIndex === this.history.length - 1;
+    }
+    
+    isAtStart() {
+        return this.currentStateIndex === 0;
     }
     
     previousStep() {
-        if (this.history.length > 1) {
-            this.history.pop();
-            this.state = this._deepCopy(this.history[this.history.length - 1]);
+        if (!this.isAtStart()) {
+            this.currentStateIndex--;
         }
-        return this.getState();
     }
 
     nextStep() {
-        if (!this.state.isRunning) return this.getState();
-
-        // The core algorithm logic, mutating this.state
-        this._performStep();
-
-        // Save the new state to history if the algorithm is still running
-        if (this.state.isRunning) {
-             this.history.push(this._deepCopy(this.state));
+        if (!this.isFinished()) {
+            this.currentStateIndex++;
         }
-        
-        return this.getState();
     }
     
     _log(message, isFormula = false) {
@@ -102,7 +111,7 @@ class SearchVisualizer {
     }
     
     _finish(found, foundIndex, reason) {
-        this.state.isRunning = false;
+        this.state.isRunning = false; // This stops the precompute loop
         this.state.foundIndex = foundIndex;
         this._setLoopContext(false);
         if (found) {
@@ -118,6 +127,10 @@ class SearchVisualizer {
         const { sortedArray, target } = this.state;
         let { low, high, pos } = this.state;
 
+        // --- FIX: MOVED probe/formula reset to 'check_while' ---
+        // this.state.pos = -1;
+        // this.state.formulaData = null; 
+
         switch (this.state.step) {
             case 'init_high':
                 this._setHighlight('code-line-2');
@@ -132,6 +145,10 @@ class SearchVisualizer {
                 break;
 
             case 'check_while':
+                // --- FIX: Reset probe and formula here, at the start of a new loop ---
+                this.state.pos = -1;
+                this.state.formulaData = null; 
+
                 this._log(`<h3 class="text-lg font-bold mt-4">Step ${this.state.stepCount} (Check Loop)</h3>`);
                 this._setHighlight('code-line-5');
                 this._setLoopContext(true);
@@ -177,6 +194,7 @@ class SearchVisualizer {
                     if (sortedArray[this.state.low] === target) {
                         this._log(`➔ <strong>TRUE</strong>. Value found.`);
                         this._finish(true, this.state.low);
+                        this.state.pos = this.state.low;
                         this._setHighlight('code-line-8');
                     } else {
                         this._log(`➔ <strong>FALSE</strong>. Value not found. Breaking loop.`);
@@ -215,7 +233,15 @@ class SearchVisualizer {
                 break;
             
             case 'check_and_update_probe':
-                pos = this.state.pos;
+                pos = this.state.pos; // Get probe position from state
+                
+                // --- FIX: Add a check for invalid pos just in case ---
+                if (pos === -1) {
+                    this._log(`<span class="text-red-600 font-bold">Internal error: Probe position not set.</span>`);
+                    this._finish(false, -1, "Internal error.");
+                    break;
+                }
+
                 this._log(`<h3 class="text-lg font-bold mt-4">Step ${this.state.stepCount} (Compare & Update)</h3>`);
                 
                 this._setHighlight('code-line-15');
@@ -240,8 +266,9 @@ class SearchVisualizer {
                         this._log(`Setting <strong>low ➔ ${this.state.low}</strong>`);
                         this._setHighlight('code-line-22');
                     }
-                    this.state.pos = -1; 
-                    this.state.formulaData = null; // Clear formula after update
+                    // --- FIX: Don't reset pos/formula here, it's done in check_while ---
+                    // this.state.pos = -1; 
+                    // this.state.formulaData = null;
                     this.state.step = 'check_while';
                     this.state.stepCount++;
                 }
