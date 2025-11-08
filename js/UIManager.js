@@ -19,6 +19,8 @@ function _cacheDOMElements() {
         resetButton: document.getElementById('reset-button'),
         arrayContainer: document.getElementById('array-container'),
         explanationLog: document.getElementById('explanation-log'),
+        // FIX: Add the new container
+        viewOptionsContainer: document.getElementById('view-options-container'),
         visualFormulaContainer: document.getElementById('component-formula-container'),
         codeContainer: document.getElementById('component-code-container'),
         vf: {
@@ -51,13 +53,18 @@ let currentHighlight = null;
 let currentContextHighlight = null;
 
 function _renderArray(state) {
-    const { sortedArray, low, high, pos, foundIndex } = state;
+    // FIX: Destructure 'isRunning' from the state object
+    const { sortedArray, low, high, pos, foundIndex, isRunning } = state;
     DOM.arrayContainer.innerHTML = '';
     
     if (sortedArray.length === 0) {
          DOM.arrayContainer.innerHTML = '<span class="text-gray-400">Enter data and press \'Start\' to see the visualization.</span>';
          return;
     }
+
+    // FIX: Define a clear "Not Found" state
+    // This is true ONLY when the search is over (!isRunning) AND we found nothing (foundIndex === -1)
+    const isFinishedNotFound = !isRunning && foundIndex === -1;
     
     sortedArray.forEach((value, index) => {
         const elementWrapper = document.createElement('div');
@@ -70,7 +77,13 @@ function _renderArray(state) {
         if (index === high) box.classList.add('high');
         if (index === pos) box.classList.add('probe');
         if (index === foundIndex) box.classList.add('found');
-        if ((low !== -1 && index < low) || (high !== -1 && index > high)) {
+        
+        // FIX: Updated logic to handle the 'isFinishedNotFound' state
+        if (isFinishedNotFound) {
+            // If finished and not found, disable *everything*
+            box.classList.add('disabled');
+        } else if ((low !== -1 && index < low) || (high !== -1 && index > high)) {
+            // Otherwise, use the standard out-of-bounds disabling
             box.classList.add('disabled');
         }
         
@@ -164,6 +177,12 @@ function _renderButtonState(state, isFinished, isAtStart) {
     DOM.prevStepButton.disabled = isAtStart;
 }
 
+// FIX: New function to show/hide the View Options block
+function _renderViewOptions(state, isFinished, isAtStart) {
+    const isIdle = isFinished && isAtStart && state.log.length === 0;
+    DOM.viewOptionsContainer.classList.toggle('hidden', isIdle);
+}
+
 function _renderComponentVisibility(state) {
     DOM.components.array.classList.toggle('hidden', !DOM.toggles.array.checked);
     DOM.components.log.classList.toggle('hidden', !DOM.toggles.log.checked);
@@ -202,6 +221,7 @@ const UIManager = {
         _renderCode(state);
         _renderFormula(state);
         _renderButtonState(state, isFinished, isAtStart);
+        _renderViewOptions(state, isFinished, isAtStart); // FIX: Add call to new function
         _renderComponentVisibility(state);
     },
 
@@ -218,9 +238,11 @@ const UIManager = {
         DOM.targetInput.value = '';
         DOM.randomCountInput.value = '';
         
-        Object.values(DOM.toggles).forEach(toggle => {
-            if(toggle) toggle.checked = true;
-        });
+        // FIX: Set default toggle states
+        DOM.toggles.array.checked = true;
+        DOM.toggles.formula.checked = false;
+        DOM.toggles.code.checked = false;
+        DOM.toggles.log.checked = false;
         
         this.render(idleState, true, true);
     },

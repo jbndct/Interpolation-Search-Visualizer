@@ -60,27 +60,36 @@
                 </button>
             </div>
 
-            <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg bg-white mb-6 shadow-sm">
+                        </div>
+
+            <!-- View Toggles -->
+            <!-- FIX: Added ID and 'hidden' class -->
+            <div id="view-options-container" class="p-4 bg-gray-50 border border-gray-200 rounded-lg bg-white mb-6 shadow-sm hidden">
                 <h3 class="text-lg font-semibold mb-3 text-center text-gray-700">View Options</h3>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <label class="flex items-center justify-center p-2 bg-white border-2 rounded-lg shadow-sm has-[:checked]:bg-blue-50 has-[:checked]:border-blue-400 cursor-pointer transition-all">
+                        <!-- FIX: 'checked' by default -->
                         <input type="checkbox" id="toggle-array" class="form-checkbox h-5 w-5 text-blue-600 rounded mr-2 focus:ring-blue-500" checked>
                         <span class="text-sm font-medium text-gray-800">Array View</span>
                     </label>
                     <label class="flex items-center justify-center p-2 bg-white border-2 rounded-lg shadow-sm has-[:checked]:bg-blue-50 has-[:checked]:border-blue-400 cursor-pointer transition-all">
-                        <input type="checkbox" id="toggle-formula" class="form-checkbox h-5 w-5 text-blue-600 rounded mr-2 focus:ring-blue-500" checked>
+                        <!-- FIX: 'checked' removed -->
+                        <input type="checkbox" id="toggle-formula" class="form-checkbox h-5 w-5 text-blue-600 rounded mr-2 focus:ring-blue-500">
                         <span class="text-sm font-medium text-gray-800">Formula View</span>
                     </label>
                     <label class="flex items-center justify-center p-2 bg-white border-2 rounded-lg shadow-sm has-[:checked]:bg-blue-50 has-[:checked]:border-blue-400 cursor-pointer transition-all">
-                        <input type="checkbox" id="toggle-code" class="form-checkbox h-5 w-5 text-blue-600 rounded mr-2 focus:ring-blue-500" checked>
+                        <!-- FIX: 'checked' removed -->
+                        <input type="checkbox" id="toggle-code" class="form-checkbox h-5 w-5 text-blue-600 rounded mr-2 focus:ring-blue-500">
                         <span class="text-sm font-medium text-gray-800">Code View</span>
                     </label>
                     <label class="flex items-center justify-center p-2 bg-white border-2 rounded-lg shadow-sm has-[:checked]:bg-blue-50 has-[:checked]:border-blue-400 cursor-pointer transition-all">
-                        <input type="checkbox" id="toggle-log" class="form-checkbox h-5 w-5 text-blue-600 rounded mr-2 focus:ring-blue-500" checked>
+                        <!-- FIX: 'checked' removed -->
+                        <input type="checkbox" id="toggle-log" class="form-checkbox h-5 w-5 text-blue-600 rounded mr-2 focus:ring-blue-500">
                         <span class="text-sm font-medium text-gray-800">Log View</span>
                     </label>
                 </div>
             </div>
+
 
             <div class="bg-blue-50 border-l-4 border-blue-400 text-blue-800 p-4 rounded-lg shadow-sm mb-8" role="alert">
                  <div class="flex">

@@ -15,18 +15,30 @@ class SearchVisualizer {
 
     // --- FIX: New async method to compute history ---
     async precomputeHistory() {
-        let iterations = 0;
+        // FIX: Get the initial state to compare against
+        let lastPushedState = this._deepCopy(this.history[0]);
+
         // Run the algorithm to pre-populate history
         while (this.state.isRunning) {
             this._performStep(); // This mutates this.state
-            this.history.push(this._deepCopy(this.state));
             
-            iterations++;
-            // --- FIX: Yield to the main thread every 100 steps ---
-            // This prevents the browser from freezing
-            if (iterations % 100 === 0) {
-                await new Promise(resolve => setTimeout(resolve, 0));
+            // FIX: "Move Move Move" logic
+            const currentState = this._deepCopy(this.state);
+            
+            // Only push if a visual change happened (low, high, pos) OR it's the final "finished" step
+            if (currentState.low !== lastPushedState.low || 
+                currentState.high !== lastPushedState.high || 
+                currentState.pos !== lastPushedState.pos ||
+                !currentState.isRunning) 
+            {
+                this.history.push(currentState);
+                lastPushedState = currentState;
             }
+            // If no visual change, we just continue. The logs from this step
+            // will be "carried over" and included in the *next* step that *is* pushed.
+
+            // Yield to the main thread to prevent freeze
+            await new Promise(resolve => setTimeout(resolve, 0));
         }
     }
 
